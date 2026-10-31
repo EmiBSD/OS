@@ -1,0 +1,29 @@
+# The pins of one EmiBSD system: which commit of each repository this release assembles.
+# tools/manifest.py reads it; a pin moves only in a commit titled "manifest: <repo> to <12-hex>".
+
+[release]
+version = "unreleased"          # YEAR.MONTH when cut (docs/RELEASE.md); "unreleased" between releases
+arch    = ["arm64"]             # amd64 joins after Kernel's N10 (Governance G-0007)
+
+[kernel]
+repo   = "https://github.com/EmiBSD/Kernel"
+commit = "2c1d8144e46a304108524274c828cc7b3439fe41"   # main, 2026-10-31: N5.5a1 done
+# What it contributes: the kernel image, boot(8)/efiboot, abi_openbsd.ko, bsd.rd, and today
+# the ramdisk and install media of OpenBSD's userland (xtask userland, distrib, install).
+
+[userland]
+repo   = "https://github.com/EmiBSD/Userland"
+commit = "daa44dbf09f5ca413144314ba891911de1f0add0"   # main, 2026-10-24: the Rust proof of concept
+# What it contributes: nothing bootable yet. Under Governance G-0013 it becomes the base
+# system's tree, and this pin starts to matter at R0.
+
+[devtools]
+repo   = "https://github.com/EmiBSD/DevTools"
+commit = "38e349426a294f13cc47a8235abfbb6b12314e55"   # main, 2026-10-31: T0
+# What it contributes: the comp set (clang, lld, libc++; rustc, cargo, std) from T3 on.
+
+[openbsd]
+# The OpenBSD pin every repository above shares (LandingZone's; Kernel/reference/PINNED.md).
+# Recorded here so a release states which OpenBSD it answers to; not fetched by this repo.
+repo   = "https://github.com/EmiBSD/OpenBSD-src"
+commit = "3ce1f3f79392ae4d60ce67bea5835d517caaa2ca"

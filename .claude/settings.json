@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(just show)",
+      "Bash(just check)",
+      "Bash(python3 -I tools/manifest.py show)",
+      "Bash(python3 -I tools/manifest.py consistent)"
+    ],
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git commit --amend*)"
+    ]
+  }
+}

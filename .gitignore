@@ -1,0 +1,9 @@
+# Checkouts of the pinned repositories (tools/manifest.py fetch), never committed.
+src/
+# Build output: images, sets, media.
+target/
+dist/
+.claude/settings.local.json
+.claude/worktrees/
+.DS_Store
+__pycache__/
