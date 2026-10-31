@@ -3,8 +3,8 @@
 The repository that assembles an EmiBSD system and cuts its releases: `MANIFEST.toml` pins
 one commit of Kernel, Userland and DevTools, the recipes fetch them, build where they build,
 assemble the sets and the media, boot them, and tag `YEAR.MONTH`. Repository `EmiBSD/OS`,
-created 2026-10-31 under Governance's decision G-0012. It builds nothing of its own. The rules
-that cross repositories are in `../Governance`; this file is the rules inside this one.
+created 2026-10-31. It builds nothing of its own. This file is the rules of this repository; what
+OS needs from Kernel, Userland and DevTools it takes from their pinned checkouts, nothing else.
 
 Everything in this repository (code, comments, docs, commits) is in English. The user is
 answered in Spanish.
@@ -18,7 +18,7 @@ answered in Spanish.
 - **One OpenBSD.** The `[openbsd]` pin equals LandingZone's and Kernel's; a release states it.
 - **Reproducible or not released.** `SOURCE_DATE_EPOCH` from the manifest commit; the sets'
   `SHA256` must rebuild identical.
-- **arm64 only until Kernel's N10** (Governance G-0007); `[release] arch` says which.
+- **arm64 only until Kernel's N10**; `[release] arch` says which.
 - **Nothing downloaded or installed without the user's OK**; `just fetch` and `just check`
   use the network and run from the main session.
 - Commit on the user's "dale", push on "súbelo", to `main`; never a branch.

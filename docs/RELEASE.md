@@ -12,7 +12,7 @@ boot and pass. The repositories build; OS assembles. Nothing is released from a 
 | R2 | amd64 joins (after Kernel's N10); `syspatch`-style updates between releases | both architectures install from the same release |
 
 R0 can run today: Kernel alone produces a bootable system on OpenBSD's userland. R1 waits for
-Userland's first bootable `base` set (Governance G-0013, U2) and DevTools' T3 artifacts.
+Userland's first bootable `base` set (its U2) and DevTools' T3 artifacts.
 
 ## The checklist of a release (R1, to be scripted as `just release`)
 
@@ -30,9 +30,8 @@ Userland's first bootable `base` set (Governance G-0013, U2) and DevTools' T3 ar
 
 ## Versions
 
-`YEAR.MONTH` for the system (Governance G-0009 kept this from Userland's rules); the
-repositories keep their own milestones and the programs their semver. A second release in a
-month is `YEAR.MONTH.1`.
+`YEAR.MONTH` for the system; the repositories keep their own milestones and the programs their
+semver. A second release in a month is `YEAR.MONTH.1`.
 
 ## What never changes between a pin and a release
 

@@ -42,8 +42,7 @@ flowchart LR
 ```
 
 The last stage of the pipeline: everything upstream builds, OS assembles, boots, compares with
-a real OpenBSD and tags. The whole picture is in
-[Governance](https://github.com/EmiBSD/Governance) (`docs/architecture.md`).
+a real OpenBSD and tags.
 
 This repository builds nothing of its own. Pre-alpha: nothing has been released; R0, the first
 milestone, is the pinned Kernel booting through its own smokes from a clean clone of this

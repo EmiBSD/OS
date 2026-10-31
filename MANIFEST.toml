@@ -3,7 +3,7 @@
 
 [release]
 version = "unreleased"          # YEAR.MONTH when cut (docs/RELEASE.md); "unreleased" between releases
-arch    = ["arm64"]             # amd64 joins after Kernel's N10 (Governance G-0007)
+arch    = ["arm64"]             # amd64 joins after Kernel's N10
 
 [kernel]
 repo   = "https://github.com/EmiBSD/Kernel"
@@ -14,8 +14,8 @@ commit = "2c1d8144e46a304108524274c828cc7b3439fe41"   # main, 2026-10-31: N5.5a1
 [userland]
 repo   = "https://github.com/EmiBSD/Userland"
 commit = "daa44dbf09f5ca413144314ba891911de1f0add0"   # main, 2026-10-24: the Rust proof of concept
-# What it contributes: nothing bootable yet. Under Governance G-0013 it becomes the base
-# system's tree, and this pin starts to matter at R0.
+# What it contributes: nothing bootable yet. When it becomes the base system's tree this
+# pin starts to matter, at R0.
 
 [devtools]
 repo   = "https://github.com/EmiBSD/DevTools"
