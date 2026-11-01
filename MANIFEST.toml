@@ -19,7 +19,7 @@ commit = "daa44dbf09f5ca413144314ba891911de1f0add0"   # main, 2026-10-24: the Ru
 
 [devtools]
 repo   = "https://github.com/EmiBSD/DevTools"
-commit = "38e349426a294f13cc47a8235abfbb6b12314e55"   # main, 2026-10-31: T0
+commit = "63830d2c63c442e7faefb1058f46c63f3ca423be"   # main, 2026-10-31: llvm-23.1.4+emibsd.1, rust-1.99.1+emibsd.1
 # What it contributes: the comp set (clang, lld, libc++; rustc, cargo, std) from T3 on.
 
 [openbsd]
