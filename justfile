@@ -23,23 +23,23 @@ check:
 fetch *names:
     python3 -I tools/manifest.py fetch {{names}}
 
-# R0: the arm64 image from the pinned Kernel, built where Kernel builds it (src/Kernel/target).
+# R0: the arm64 image from the pinned Kernel, built where Kernel builds it (src/kernel/target).
 image: 
-    @test -d src/Kernel || { echo "image: run just fetch first"; exit 1; }
-    cd src/Kernel && just image-arm64
+    @test -d src/kernel || { echo "image: run just fetch first"; exit 1; }
+    cd src/kernel && just image-arm64
 
 # R0: the base system and its install sets from the pinned Userland, built where Userland
-# builds them (src/Userland/target/arm64/sets), at this manifest's SOURCE_DATE_EPOCH: two runs
+# builds them (src/userland/target/arm64/sets), at this manifest's SOURCE_DATE_EPOCH: two runs
 # of one manifest commit print the same SHA256.
 userland:
-    @test -d src/Userland || { echo "userland: run just fetch first"; exit 1; }
-    cd src/Userland && just host-make && just world arm64
-    cat src/Userland/target/arm64/sets/SHA256
+    @test -d src/userland || { echo "userland: run just fetch first"; exit 1; }
+    cd src/userland && just host-make && just world arm64
+    cat src/userland/target/arm64/sets/SHA256
 
 # R0: boot the pinned system through Kernel's smokes, on the pinned userland.
 smoke:
-    @test -d src/Kernel || { echo "smoke: run just fetch first"; exit 1; }
-    cd src/Kernel && just smoke-boot
+    @test -d src/kernel || { echo "smoke: run just fetch first"; exit 1; }
+    cd src/kernel && just smoke-boot
 
 # Cut a release: refuse until docs/RELEASE.md's checklist is scripted (R1).
 release version:
