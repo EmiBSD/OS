@@ -10,7 +10,7 @@ checklist, the release notes and the tag.
 - **`src/` is a checkout, not a workspace.** Fetched at the pin, detached, never edited, never
   committed. A fix goes to its repository; the manifest follows it. The guard applies: no write
   under `src/`, no `cd` into it except through the recipes that delegate a build there.
-- **Delegate, do not duplicate.** `just image` runs Kernel's `just image-arm64` in `src/Kernel`;
+- **Delegate, do not duplicate.** `just image` runs Kernel's `just image-arm64` in `src/kernel`;
   `just smoke` runs Kernel's smokes. OS gains its own recipes only for what no repository can
   do alone: assembling sets from several outputs, the media, `diff-openbsd` over the whole
   system, the tag.
