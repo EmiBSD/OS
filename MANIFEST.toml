@@ -13,9 +13,10 @@ commit = "2c1d8144e46a304108524274c828cc7b3439fe41"   # main, 2026-10-31: N5.5a1
 
 [userland]
 repo   = "https://github.com/EmiBSD/Userland"
-commit = "daa44dbf09f5ca413144314ba891911de1f0add0"   # main, 2026-10-24: the Rust proof of concept
-# What it contributes: nothing bootable yet. When it becomes the base system's tree this
-# pin starts to matter, at R0.
+commit = "d7f609a6a35a28dfba90ac6aa20b41b483a62ac1"   # main, 2026-11-05: the inherited base system, its sets reproducible
+# What it contributes: the inherited base system built for EmiBSD and its base, comp, game
+# and man sets with their SHA256 (`just userland`); its ramdisk boots on Kernel. Not yet
+# in Kernel's install media, which still carry OpenBSD's userland as Kernel builds it.
 
 [devtools]
 repo   = "https://github.com/EmiBSD/DevTools"
