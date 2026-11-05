@@ -27,7 +27,7 @@ result with a real OpenBSD and tag the release as `YEAR.MONTH`.
 | Pinned | Contributes |
 |---|---|
 | [Kernel](https://github.com/EmiBSD/Kernel) | the kernel image, its boot loaders, `abi_openbsd.ko`, `bsd.rd`; today also the ramdisk and media of OpenBSD's userland |
-| [Userland](https://github.com/EmiBSD/Userland) | the base system above the kernel, once it boots |
+| [Userland](https://github.com/EmiBSD/Userland) | the base system above the kernel and its `base`, `comp`, `game` and `man` sets (`just userland`) |
 | [DevTools](https://github.com/EmiBSD/DevTools) | the `comp` set: clang, lld, libc++, rustc, cargo, `std` |
 
 ## Where it sits

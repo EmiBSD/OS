@@ -37,13 +37,13 @@ src/            the pinned checkouts (gitignored); target/ dist/ the builds and 
 
 | | Scope | Proof |
 |---|---|---|
-| R0 | manifest, fetch, the arm64 image and Kernel's smokes from the pins | `just check`, `just image`, `just smoke` from a clean clone |
+| R0 | manifest, fetch, the arm64 image and Kernel's smokes, Userland's sets from the pins | `just check`, `just image`, `just smoke`, `just userland` from a clean clone |
 | R1 | sets and media assembled here; `diff-openbsd`; the first `YEAR.MONTH` | the installer end to end in QEMU from the release media |
 | R2 | amd64 (after N10); updates between releases | both architectures install from one release |
 
 ## Working
 
-- `just show`, `just check`, `just fetch`, `just image`, `just smoke`; `just release` refuses
+- `just show`, `just check`, `just fetch`, `just image`, `just smoke`, `just userland`; `just release` refuses
   until R1 scripts the checklist of `docs/RELEASE.md`.
 - Commits: `manifest: <repo> to <12-hex>` for a pin, `<tools|docs|recipes>: <imperative
   summary>` for the rest, the body says what and why, then the session's `Co-Authored-By:` line.
