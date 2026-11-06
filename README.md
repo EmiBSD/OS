@@ -20,41 +20,121 @@
 > network and storage code is unaudited. Do not use it to protect real data or real networks.
 
 Where an [EmiBSD](https://www.emibsd.org) system is assembled and released. `MANIFEST.toml`
-pins one commit of each repository that produces part of the system; the recipes fetch them,
-build where they build, assemble the install sets and the media, boot them in QEMU, compare the
-result with a real OpenBSD and tag the release as `YEAR.MONTH`.
+pins one release of each repository that produces part of the system; the recipes fetch them
+by tag and sum, make the install media, install them in QEMU, compare the result with a real
+OpenBSD and tag the release as `YEAR.MONTH`.
 
 | Pinned | Contributes |
 |---|---|
-| [Kernel](https://github.com/EmiBSD/Kernel) | the kernel image, its boot loaders, `abi_openbsd.ko`, `bsd.rd`; today also the ramdisk and media of OpenBSD's userland |
-| [Userland](https://github.com/EmiBSD/Userland) | the base system above the kernel: its `base`, `comp`, `game` and `man` sets, one release artifact per architecture |
+| [Kernel](https://github.com/EmiBSD/Kernel) | `bsd.mp`, the kernel; `bsd.RAMDISK`, the same kernel with an empty ramdisk; the EFI loader `BOOTAA64.EFI`; `abi_openbsd.ko` |
+| [Userland](https://github.com/EmiBSD/Userland) | the base system above the kernel: its `base`, `comp`, `game` and `man` sets, the installer's ramdisk `miniroot80.fs`, `INSTALL.arm64`; and the host `makefs` its recipes build |
 | [DevTools](https://github.com/EmiBSD/DevTools) | the `comp` set: clang, lld, libc++, rustc, cargo, `std` |
 
 ## Where it sits
 
 ```mermaid
 flowchart LR
-    k["Kernel"] -- "kernel image, boot loaders, bsd.rd" --> os["OS"]
-    ul["Userland"] -- "the base sets" --> os
+    k["Kernel"] -- "bsd.mp, bsd.RAMDISK, the loader" --> os["OS"]
+    ul["Userland"] -- "the sets, the miniroot" --> os
     dev["DevTools"] -- "the comp set" --> os
-    os -- "YEAR.MONTH: the install sets,<br/>ISO, USB and disk images" --> rel["Release"]
+    os -- "YEAR.MONTH: the install ISO<br/>and USB image" --> rel["Release"]
     os -- "status.json, the news" --> web["Website"]
 ```
 
-The last stage of the pipeline: everything upstream builds, OS assembles, boots, compares with
-a real OpenBSD and tags.
-
-This repository builds nothing of its own. Pre-alpha: nothing has been released; R0, the first
-milestone, is the pinned Kernel booting through its own smokes from a clean clone of this
-repository (`docs/RELEASE.md`).
+The last stage of the pipeline: the repositories build their pieces; OS integrates them and
+makes the system's install media (`docs/MEDIA.md`), boots them, compares with a real OpenBSD and
+tags. Pre-alpha: nothing has been released yet (`docs/RELEASE.md`).
 
 ```
-just show      # the pins and the release version
-just check     # every pin exists; the OpenBSD pin matches Kernel's and LandingZone's
-just fetch     # clone the pinned repositories into src/ (network)
-just image     # the arm64 image, built by the pinned Kernel
-just smoke     # boot it through Kernel's smokes
+just show         # the pins and the release version
+just check        # every pin and release exists; the OpenBSD pin matches Kernel's and LandingZone's
+just fetch        # the pinned releases into target/, their checkouts into src/ (network)
+just smoke        # boot the released kernel through Kernel's smoke harness
+just host-tools   # the host makefs, built by Userland's recipes in src/userland
+just media        # the install ISO and USB image into dist/<version>/
+just smoke-media  # install each in QEMU, then boot the installed disk to login:
 ```
+
+## Run it in QEMU
+
+Each release on [GitHub](https://github.com/EmiBSD/OS/releases) carries the install media for
+arm64: `emibsd-<version>-arm64-install.iso` (for QEMU and VMs), `emibsd-<version>-arm64-install.img`
+(a USB stick image) and their `SHA256`. Nothing is released yet; until then, make the media
+yourself (below). Tested on macOS on Apple Silicon with QEMU (`brew install qemu`).
+
+1. Download the ISO and check it:
+
+   `V` is the release's tag, as the releases page lists it:
+
+   ```sh
+   V=2026.11
+   U=https://github.com/EmiBSD/OS/releases/download/$V
+   curl -fLO $U/emibsd-$V-arm64-install.iso -fLO $U/SHA256 &&
+     shasum -a 256 --ignore-missing -c SHA256
+   ```
+
+   With wget: `wget $U/emibsd-$V-arm64-install.iso $U/SHA256`. On Linux, `sha256sum
+   --ignore-missing -c SHA256` checks it the same way.
+
+2. Prepare a disk and the firmware's variables:
+
+   ```sh
+   Q=$(brew --prefix qemu)/share/qemu
+   truncate -s 3g disk.img
+   cp $Q/edk2-arm-vars.fd vars.fd
+   VM="qemu-system-aarch64 -M virt,acpi=off -cpu cortex-a72 -m 1024M -smp 2
+     -display none -serial mon:stdio
+     -drive if=pflash,format=raw,readonly=on,file=$Q/edk2-aarch64-code.fd
+     -drive if=pflash,format=raw,file=vars.fd
+     -drive if=none,format=raw,file=disk.img,id=hd0 -device virtio-blk-device,drive=hd0
+     -netdev user,id=n0 -device virtio-net-device,netdev=n0"
+   ```
+
+3. Boot the installer from the ISO:
+
+   ```sh
+   $=VM -device virtio-scsi-device \
+     -drive if=none,format=raw,media=cdrom,readonly=on,file=emibsd-$V-arm64-install.iso,id=cd0 \
+     -device scsi-cd,drive=cd0,bootindex=0
+   ```
+
+   Or from the USB image (QEMU writes nothing to it):
+
+   ```sh
+   $=VM -device qemu-xhci,id=xhci \
+     -drive if=none,format=raw,snapshot=on,file=emibsd-$V-arm64-install.img,id=stick \
+     -device usb-storage,bus=xhci.0,drive=stick,bootindex=0
+   ```
+
+   (`$=VM` splits the variable into words in zsh; in bash write `$VM`.)
+
+4. Answer the installer. Press Enter for the defaults, except:
+
+   | Question | ISO | USB image |
+   |---|---|---|
+   | `(I)nstall, (U)pgrade, (A)utoinstall or (S)hell?` | `i` | `i` |
+   | `Which disk is the root disk?` | `sd0` | `sd0` |
+   | `Location of sets?` | `cd0` | `disk`, then `sd1`, partition `a`, path `8.0/arm64` |
+   | `Set name(s)?` | `done` | `done` |
+   | `Continue without verification?` | `yes` | `yes` |
+   | `Exit to (S)hell, (H)alt or (R)eboot?` | `h` | `h` |
+
+   When it says `syncing disks... done`, leave QEMU with `Ctrl-A X`. After the halt the kernel
+   may stop in ddb: that is a known Kernel issue and the disk is already written.
+
+5. Boot the installed system: run `$=VM` alone, without the ISO or the stick, and log in as
+   `root` with the password you gave the installer.
+
+### Making the media yourself
+
+From a clone of this repository, with `just`, `gh` (logged in), `zstd` and DevTools' LLVM
+(`EMIBSD_LLVM_BIN`) for the host `makefs`:
+
+```sh
+just fetch && just host-tools && just media   # into dist/<version>/
+```
+
+then follow the steps above from 2 with the files of `dist/<version>/`.
 
 EmiBSD is not affiliated with or endorsed by the OpenBSD project. The recipes and documents
 here are ISC ([LICENSE](LICENSE)); what they assemble keeps the licences of its sources.
