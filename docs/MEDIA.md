@@ -133,5 +133,5 @@ For the release notes and the repositories that own them:
 
 - Network install and signatures.
 - amd64, until Kernel's N10.
-- Real hardware: the kernel is built with feature `qemu`, so the media are for QEMU and the VMs
-  built on it.
+- Real hardware: untried; the media are tested in QEMU's `virt` only (since `20261106-ac41e133`
+  the kernel is no longer built with feature `qemu`).

@@ -114,6 +114,7 @@ Silicon with QEMU (`brew install qemu`).
    | Question | ISO | USB image |
    |---|---|---|
    | `(I)nstall, (U)pgrade, (A)utoinstall or (S)hell?` | `i` | `i` |
+   | `Password for root account?` and its `(again)` | a password of yours: it cannot be empty | the same |
    | `Which disk is the root disk?` | `sd0` | `sd0` |
    | `Location of sets?` | `cd0` | `disk`, then `sd1`, partition `a`, path `8.0/arm64` |
    | `Set name(s)?` | `done` | `done` |
