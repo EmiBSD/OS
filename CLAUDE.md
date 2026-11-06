@@ -6,7 +6,8 @@ assemble the sets and the media, boot them, and tag `YEAR.MONTH`. Repository `Em
 created 2026-10-31. It builds nothing of its own. This file is the rules of this repository; what
 OS needs from Kernel, Userland and DevTools it takes from their pinned checkouts or, for a pin
 with `release` (Userland), from that GitHub release's artifacts by tag and sum, one per
-architecture, nothing else.
+architecture, nothing else. A released pin with `tools = true` is also checked out under `src/`,
+for its tools only; what ships is always the artifact.
 
 Everything in this repository (code, comments, docs, commits) is in English. The user is
 answered in Spanish.

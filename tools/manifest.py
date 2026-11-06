@@ -5,13 +5,17 @@ usage: manifest.py show                 the table of pins
        manifest.py check                every commit exists on its repository (blob-less fetch of one object), and
                                         a released one's tag names that commit and carries an artifact per arch (network)
        manifest.py fetch [<name>...]    clone each repository into src/<name> at its pin; a released one's artifacts
-                                        into target/<name>/<tag>/<arch>, checked (network; the user's OK)
+                                        into target/<name>/<tag>/<arch>, checked, and its checkout only if it says
+                                        `tools = true` (network; the user's OK)
        manifest.py consistent           the OpenBSD pin here equals Kernel's and LandingZone's when their clones sit beside this one
 
-A pin with `release` is taken from its GitHub release, never cloned or built: one artifact per
+A pin with `release` is taken from its GitHub release, never built: one artifact per
 architecture of [release] arch, <name>-<tag>-<arch>.tar.zst, whose sum is the pin's
-sha256.<arch>; unpacked, its sets match the SHA256 it carries. Needs `gh` (logged in) and
-`zstd`, as Kernel's toolchain recipe does.
+sha256.<arch>; unpacked, its files match the SHA256 it carries. Those are the bytes a release
+ships. With `tools = true` the pin's commit is also checked out in src/<name>, for its tools
+only (Kernel's xtask: rdsetroot, the image writers, the smoke harness); nothing from that
+checkout goes into a release. Needs `gh` (logged in) and `zstd`, as Kernel's toolchain recipe
+does.
 
 Stdlib only. Nothing here builds anything: OS assembles what the pinned repositories produce.
 """
@@ -130,12 +134,12 @@ def fetch_release(doc, name, sec):
             return 1
         unpacked = dest / top
         sums = (unpacked / "SHA256").read_text().splitlines()
-        for line in sums:   # SHA256 (base80.tgz) = <hex>
+        for line in sums:   # SHA256 (base80.tar.zst) = <hex>
             file, digest = line.split("(", 1)[1].split(")", 1)[0], line.rsplit("= ", 1)[1]
             if hashlib.sha256((unpacked / file).read_bytes()).hexdigest() != digest:
                 print(f"fetch: {top}/{file} does not match its SHA256", file=sys.stderr)
                 return 1
-        print(f"{name:10} {tag:12}  {arch}: target/{name}/{tag}/{top} ({len(sums)} sets, sums ok)")
+        print(f"{name:10} {tag:12}  {arch}: target/{name}/{tag}/{top} ({len(sums)} files, sums ok)")
     return 0
 
 
@@ -148,7 +152,8 @@ def cmd_fetch(args):
         if "release" in doc[name]:
             if fetch_release(doc, name, doc[name]):
                 return 1
-            continue
+            if not doc[name].get("tools"):
+                continue
         dest = SRC / name
         if not dest.exists():
             dest.parent.mkdir(parents=True, exist_ok=True)
