@@ -46,6 +46,32 @@ smoke:
             --expect "init exited with status 0 (signal 0)")
     done
 
+# The base system's makefs for this host, the one compiled tool the media need, built by
+# Userland's own tools in src/userland (`tools = true`): the upstreams of its imported programs
+# (`upstream.py fetch --build`: zstd's mirror and the Kernel release; network), its make, then
+# the tree and the host tools, into src/userland/target/host/bin. DevTools' LLVM; nothing is
+# built for EmiBSD.
+# R1: the host tools of the media (makefs), from the pinned Userland.
+host-tools:
+    @test -d src/userland || { echo "host-tools: no src/userland; run just fetch userland first" >&2; exit 1; }
+    cd src/userland && python3 -I tools/upstream.py fetch --build && just host-make && just world arm64 tree host
+    @src/userland/target/host/bin/makefs 2>&1 | head -1 || true
+
+# tools/media.py (docs/MEDIA.md): the tree from the fetched artifacts, checked again; bsd.rd by
+# rdsetroot; SHA256; the two FATs written here, the cd9660 and the FFS by the host makefs; the
+# ISO, the USB stick image and their SHA256. Every time written is SOURCE_DATE_EPOCH, the
+# manifest commit's.
+# R1: the install media of every arch of [release], into dist/<version>/.
+media:
+    python3 -I tools/media.py build
+
+# tools/smokemedia.py (docs/MEDIA.md): each image installs in QEMU (virt, EDK2) onto a fresh
+# disk, the installer answered over the console, and the installed disk boots alone to login:.
+# Under the machine's QEMU lock, /tmp/emibsd/ci.lock. Logs in target/smoke-media/<arch>/<kind>.
+# R1: the install media install and boot: `just smoke-media`, or `iso` or `img` alone.
+smoke-media *kinds:
+    python3 -I tools/smokemedia.py {{kinds}}
+
 # Cut a release: refuse until docs/RELEASE.md's checklist is scripted (R1).
 release version:
     @echo "release {{version}}: not scripted yet; docs/RELEASE.md is the checklist" >&2; exit 1
