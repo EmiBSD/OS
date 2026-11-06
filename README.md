@@ -119,8 +119,7 @@ yourself (below). Tested on macOS on Apple Silicon with QEMU (`brew install qemu
    | `Continue without verification?` | `yes` | `yes` |
    | `Exit to (S)hell, (H)alt or (R)eboot?` | `h` | `h` |
 
-   When it says `syncing disks... done`, leave QEMU with `Ctrl-A X`. After the halt the kernel
-   may stop in ddb: that is a known Kernel issue and the disk is already written.
+   When it says `The operating system has halted.`, leave QEMU with `Ctrl-A X`.
 
 5. Boot the installed system: run `$=VM` alone, without the ISO or the stick, and log in as
    `root` with the password you gave the installer.
