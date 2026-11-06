@@ -19,15 +19,16 @@ arm64 = "3a838cd599c175e62c63bfaf0598523b9cdff125a05b517c694f594f2e756eba"
 
 [userland]
 repo    = "https://github.com/EmiBSD/Userland"
-commit  = "7b6d52999ab9b3dc696fbc7d33cbed053fad52fe"   # the tag's commit, 2026-11-05
+commit  = "03eb9875d9c536c6e92ff0d919abbad3bc87d572"   # the tag's commit, 2026-11-06
 release = "2026.11.0"   # taken from this GitHub release, never built here: one artifact per arch
 # What it contributes: the inherited base system built for EmiBSD, its base, comp, game and
-# man sets with their SHA256, in userland-<tag>-<arch>.tar (reproducible: Userland's
-# `just dist <arch>` at the tag gives the same sums); its ramdisk boots on Kernel. Not yet in
-# Kernel's install media, which still carry OpenBSD's userland as Kernel builds it.
+# man sets (.tar.zst) with their SHA256, and the installer's ramdisk miniroot80.fs (rdsetroot
+# into Kernel's bsd.RAMDISK gives bsd.rd), in userland-<tag>-<arch>.tar.zst (reproducible:
+# Userland's `just dist <arch>` at the tag gives the same sums). Base carries the Kernel
+# release's BOOTAA64.EFI in /usr/mdec; installed from local media, bsd.mp is /bsd.
 
 [userland.sha256]   # the artifact of each architecture; amd64 joins when it is released
-arm64 = "10cb79c4a4099a0b55686437c5789ee46cace1ffbb38247b5535ebb745744029"
+arm64 = "5c2c0309473120e0b97c363ff5c9438a966fe0646ea9e5dc640c86923988d00a"
 
 [devtools]
 repo   = "https://github.com/EmiBSD/DevTools"
