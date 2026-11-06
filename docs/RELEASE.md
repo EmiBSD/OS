@@ -7,13 +7,16 @@ boot and pass. The repositories build; OS assembles. Nothing is released from a 
 
 | | Scope | Proof |
 |---|---|---|
-| R0 | the manifest, `just fetch`, the arm64 image and Kernel's smokes, Userland's sets and their `SHA256` from the pinned commits, nothing else | `just check`, `just image`, `just smoke`, `just userland` green from a clean clone, `just userland` twice to the same `SHA256` |
+| R0 | the manifest, `just fetch`, the arm64 image and Kernel's smokes from the pinned commits, Userland's sets from its pinned release, nothing else | `just check`, `just fetch`, `just image`, `just smoke` green from a clean clone |
 | R1 | the install sets (`base`, `comp`, `man`, ...) and the media (`bsd.rd`, `install.img`, the ISO) assembled here from Kernel's, Userland's and DevTools' outputs; `diff-openbsd` against a real OpenBSD; the first `YEAR.MONTH` tag | the installer runs end to end in QEMU from the release media; the Website's `status.json` reads from the tag |
 | R2 | amd64 joins (after Kernel's N10); `syspatch`-style updates between releases | both architectures install from the same release |
 
 R0 can run today: Kernel alone produces a bootable system on OpenBSD's userland, and Userland
-builds the inherited base system and its `base`, `comp`, `game` and `man` sets, reproducibly.
-R1 waits for those sets to reach Kernel's install media and for DevTools' T3 artifacts.
+releases the inherited base system's `base`, `comp`, `game` and `man` sets, one artifact per
+architecture (`userland-<tag>-<arch>.tar`), reproducibly: Userland's `just dist <arch>` at the
+tag gives the same sums. OS fetches them by tag and checks them against the manifest's
+`sha256.<arch>`. R1 waits for those sets to reach Kernel's install media and for DevTools' T3
+artifacts.
 
 ## The checklist of a release (R1, to be scripted as `just release`)
 

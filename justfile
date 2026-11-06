@@ -19,7 +19,8 @@ check:
     python3 -I tools/manifest.py consistent
     python3 -I -m py_compile tools/manifest.py
 
-# Clone the pinned repositories into src/<name> at their commits (network; the user's OK).
+# A released pin's artifacts (Userland's sets) go to target/<name>/<tag>/<arch>, by tag and sum.
+# Clone the pinned repositories into src/<name>, fetch the released ones (network; the user's OK).
 fetch *names:
     python3 -I tools/manifest.py fetch {{names}}
 
@@ -27,14 +28,6 @@ fetch *names:
 image: 
     @test -d src/kernel || { echo "image: run just fetch first"; exit 1; }
     cd src/kernel && just image-arm64
-
-# R0: the base system and its install sets from the pinned Userland, built where Userland
-# builds them (src/userland/target/arm64/sets), at this manifest's SOURCE_DATE_EPOCH: two runs
-# of one manifest commit print the same SHA256.
-userland:
-    @test -d src/userland || { echo "userland: run just fetch first"; exit 1; }
-    cd src/userland && just host-make && just world arm64
-    cat src/userland/target/arm64/sets/SHA256
 
 # R0: boot the pinned system through Kernel's smokes, on the pinned userland.
 smoke:

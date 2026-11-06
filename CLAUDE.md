@@ -4,7 +4,9 @@ The repository that assembles an EmiBSD system and cuts its releases: `MANIFEST.
 one commit of Kernel, Userland and DevTools, the recipes fetch them, build where they build,
 assemble the sets and the media, boot them, and tag `YEAR.MONTH`. Repository `EmiBSD/OS`,
 created 2026-10-31. It builds nothing of its own. This file is the rules of this repository; what
-OS needs from Kernel, Userland and DevTools it takes from their pinned checkouts, nothing else.
+OS needs from Kernel, Userland and DevTools it takes from their pinned checkouts or, for a pin
+with `release` (Userland), from that GitHub release's artifacts by tag and sum, one per
+architecture, nothing else.
 
 Everything in this repository (code, comments, docs, commits) is in English. The user is
 answered in Spanish.
@@ -37,13 +39,13 @@ src/            the pinned checkouts (gitignored); target/ dist/ the builds and 
 
 | | Scope | Proof |
 |---|---|---|
-| R0 | manifest, fetch, the arm64 image and Kernel's smokes, Userland's sets from the pins | `just check`, `just image`, `just smoke`, `just userland` from a clean clone |
+| R0 | manifest, fetch, the arm64 image and Kernel's smokes, Userland's sets from its release | `just check`, `just fetch`, `just image`, `just smoke` from a clean clone |
 | R1 | sets and media assembled here; `diff-openbsd`; the first `YEAR.MONTH` | the installer end to end in QEMU from the release media |
 | R2 | amd64 (after N10); updates between releases | both architectures install from one release |
 
 ## Working
 
-- `just show`, `just check`, `just fetch`, `just image`, `just smoke`, `just userland`; `just release` refuses
+- `just show`, `just check`, `just fetch`, `just image`, `just smoke`; `just release` refuses
   until R1 scripts the checklist of `docs/RELEASE.md`.
 - Commits: `manifest: <repo> to <12-hex>` for a pin, `<tools|docs|recipes>: <imperative
   summary>` for the rest, the body says what and why, then the session's `Co-Authored-By:` line.
