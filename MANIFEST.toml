@@ -7,15 +7,15 @@ arch    = ["arm64"]             # amd64 joins after Kernel's N10
 
 [kernel]
 repo    = "https://github.com/EmiBSD/Kernel"
-commit  = "ea7fc03286146582264f08f3e5d10b04c0d1c4e2"   # the tag's commit, 2026-11-05
-release = "20261106-ea7fc032"   # taken from this GitHub pre-release, never built here: one artifact per arch
+commit  = "ac41e1339b07a1609d175d6ce8b1521de6b45fa5"   # the tag's commit, 2026-11-06
+release = "20261106-ac41e133"   # taken from this GitHub pre-release, never built here: one artifact per arch
 tools   = true                  # also checked out in src/kernel, for its xtask only (rdsetroot, media, smokes)
-# What it contributes: bsd.mp (release profile, feature qemu), bsd.RAMDISK (the same kernel
-# with an empty 32 MiB ramdisk, which OS fills with Userland's miniroot by rdsetroot to make
-# bsd.rd), abi_openbsd.ko, BOOTAA64.EFI, BUILDINFO, in kernel-<tag>-<arch>.tar.zst.
+# What it contributes: bsd.mp (release profile, without feature qemu), bsd.RAMDISK (the same
+# kernel with an empty 32 MiB ramdisk, which OS fills with Userland's miniroot by rdsetroot to
+# make bsd.rd), abi_openbsd.ko, BOOTAA64.EFI, BUILDINFO, in kernel-<tag>-<arch>.tar.zst.
 
 [kernel.sha256]   # the artifact of each architecture
-arm64 = "3a838cd599c175e62c63bfaf0598523b9cdff125a05b517c694f594f2e756eba"
+arm64 = "75a1cbd1434743a675f16b6c9e49ce2f54fed32533a62cfe19143696081fd334"
 
 [userland]
 repo    = "https://github.com/EmiBSD/Userland"

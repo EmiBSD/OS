@@ -208,8 +208,7 @@ def smoke(arch, kind, image):
     print(f"smoke-media {arch} {kind}: install from {image.name}", flush=True)
     t0 = time.time()
     err = Vm(run, "install", disk, (kind, image)).drive(
-        # The disk is written once the kernel has synced it (after halt it may stop in ddb:
-        # docs/MEDIA.md, seen in Userland's proofs).
+        # The disk is written once the kernel has synced it; halt then waits for a key.
         answers, [r"CONGRATULATIONS!", r"syncing disks\.\.\.[ 0-9]*done"], timeout=1800, stall=300)
     if err:
         return f"install: {err} (log {run.relative_to(ROOT)}/install.log)"

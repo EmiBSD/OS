@@ -26,8 +26,10 @@ fetch *names:
     python3 -I tools/manifest.py fetch {{names}}
 
 # bsd.mp from Kernel's artifact (target/kernel/<tag>), through Kernel's smoke harness in
-# src/kernel (`tools = true`), with the checks Kernel's dist-arm64 ran before packaging it. The
-# init stand-in is the harness's fixture, built there; it never ships. Logs in target/smoke.
+# src/kernel (`tools = true`), with the checks Kernel's dist-arm64 ran before packaging it: the
+# user-mode lines up to init's last check, then init's death panic, which is how a kernel
+# without `qemu` answers the stand-in init's exit (QEMU is stopped once it is seen). The init
+# stand-in is the harness's fixture, built there; it never ships. Logs in target/smoke.
 # R0: the released kernel boots, on every arch of [release].
 smoke:
     #!/bin/zsh
@@ -40,10 +42,10 @@ smoke:
         test -f $kernel || { echo "smoke: no $kernel; run just fetch kernel first" >&2; exit 1; }
         (cd src/kernel && just build-init-$arch && \
          EMIBSD_RUN_DIR=$OLDPWD/target/smoke/$arch cargo xtask smoke --reject 'uptime went backwards' --smp 2 \
-            --arch $arch --kernel $kernel --ramdisk none --expect-ramdisk \
-            --expect "bsd: booted on $arch" --expect "EmiBSD 8.0 (GENERIC) #" --expect "selftest: buffer cache ok" \
+            --arch $arch --kernel $kernel --ramdisk none --expect-ramdisk --until-seen \
+            --expect "bsd: booted on $arch" --expect "EmiBSD 8.0 (GENERIC) #" \
             --expect "init: hello from user mode" --expect "init: EmiBSD 8.0" --expect "init: processes ok" \
-            --expect "init exited with status 0 (signal 0)")
+            --expect "init: unveil ok" --expect "panic: init died (signal 0, exit ")
     done
 
 # The base system's makefs for this host, the one compiled tool the media need, built by
