@@ -6,16 +6,19 @@ assemble the sets and the media, boot them, and tag `YEAR.MONTH`. Repository `Em
 created 2026-10-31. It builds nothing of its own. This file is the rules of this repository; what
 OS needs from Kernel, Userland and DevTools it takes from their pinned checkouts or, for a pin
 with `release` (Kernel, Userland), from that GitHub release's artifacts by tag and sum, one per
-architecture, nothing else. A released pin with `tools = true` (Kernel) is also checked out under `src/`,
-for its tools only; what ships is always the artifact.
+architecture, nothing else. A released pin with `tools = true` (Kernel, Userland) is also
+checked out under `src/`, for its tools only; what ships is always the artifact.
 
 Everything in this repository (code, comments, docs, commits) is in English. The user is
 answered in Spanish.
 
 ## Non-negotiables
 
-- **OS assembles; the repositories build.** Nothing here compiles a kernel, a program or a
-  toolchain except by delegating to the pinned checkout's own recipes under `src/`.
+- **OS integrates; the repositories build their pieces.** Kernel only makes and debugs the
+  kernel, Userland the user tools, DevTools the toolchains. OS puts them together and makes the
+  system's image and its install media, with its own tools (`tools/`, stdlib); nothing here
+  compiles a kernel, a program or a toolchain except by delegating to the pinned checkout's own
+  recipes under `src/` (Userland's host `makefs`, the media's one compiled tool).
 - **The manifest is the only state.** A release is a tag on a manifest commit; a pin moves in
   its own commit with its reason. `src/`, `target/` and `dist/` are never committed.
 - **One OpenBSD.** The `[openbsd]` pin equals LandingZone's and Kernel's; a release states it.

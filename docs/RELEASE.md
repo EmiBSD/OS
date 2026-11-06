@@ -14,13 +14,14 @@ boot and pass. The repositories build; OS assembles. Nothing is released from a 
 R0 runs from released artifacts only. Kernel releases its kernel per architecture
 (`kernel-<tag>-<arch>.tar.zst`: `bsd.mp`, the one kernel; `bsd.RAMDISK`, the same kernel with an
 empty ramdisk; `abi_openbsd.ko`, `BOOTAA64.EFI`, `BUILDINFO`), and its pin's `tools = true` keeps
-a checkout of the same commit for Kernel's xtask, which runs the smokes and, in R1, rdsetroot and
-the image writers. Userland releases the inherited base system's `base`, `comp`, `game` and `man`
-sets, one artifact per architecture (`userland-<tag>-<arch>.tar.zst`), reproducibly: Userland's
-`just dist <arch>` at the tag gives the same sums. OS fetches each by tag and checks it against
-the manifest's `sha256.<arch>`. R1 waits for Userland's installer to read the `.tar.zst` sets and
-install `bsd.mp` as `/bsd`, for its miniroot in its release (OS puts it into `bsd.RAMDISK` to make
-`bsd.rd`), and for DevTools' T3 artifacts.
+a checkout of the same commit for Kernel's smoke harness. Userland releases the inherited base
+system's `base`, `comp`, `game` and `man` sets, one artifact per architecture
+(`userland-<tag>-<arch>.tar.zst`), reproducibly: Userland's `just dist <arch>` at the tag gives
+the same sums. OS fetches each by tag and checks it against the manifest's `sha256.<arch>`.
+Userland's artifact also carries the installer's ramdisk `miniroot80.fs` and `INSTALL.<arch>`,
+and its installer reads the `.tar.zst` sets from local media and installs `bsd.mp` as `/bsd`. R1
+waits for the media OS makes from them (`docs/MEDIA.md`: `just media`, `just smoke-media`) and
+for DevTools' T3 artifacts.
 
 ## The checklist of a release (R1, to be scripted as `just release`)
 

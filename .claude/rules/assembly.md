@@ -18,6 +18,10 @@ checklist, the release notes and the tag.
   Kernel's smoke harness in `src/kernel`. OS gains its own recipes only for what no repository can
   do alone: assembling sets from several outputs, the media, `diff-openbsd` over the whole
   system, the tag.
+- **The media are OS's** (the user's decision of 2026-11-06). Kernel and Userland are asked only
+  for artifacts of their own job: kernels; sets, miniroot, notes. `bsd.rd`, the layout, the ISO,
+  the stick image and their smokes are written here (`docs/MEDIA.md`); the base system's
+  `makefs` is built for the host by Userland's own recipe in `src/userland`.
 - **Reproducible.** `SOURCE_DATE_EPOCH` is the manifest commit's time; the sets' `SHA256` is
   the proof; a release that cannot be rebuilt to the same sums is not cut.
 - **The OpenBSD pin is recorded, not fetched.** `[openbsd]` states which OpenBSD this system
