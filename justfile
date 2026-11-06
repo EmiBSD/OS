@@ -19,20 +19,32 @@ check:
     python3 -I tools/manifest.py consistent
     python3 -I -m py_compile tools/manifest.py
 
-# A released pin's artifacts (Userland's sets) go to target/<name>/<tag>/<arch>, by tag and sum.
+# A released pin's artifacts (Kernel's kernels, Userland's sets) go to target/<name>/<tag>, by tag
+# and sum; one with `tools = true` (Kernel) is also checked out in src/<name>.
 # Clone the pinned repositories into src/<name>, fetch the released ones (network; the user's OK).
 fetch *names:
     python3 -I tools/manifest.py fetch {{names}}
 
-# R0: the arm64 image from the pinned Kernel, built where Kernel builds it (src/kernel/target).
-image: 
-    @test -d src/kernel || { echo "image: run just fetch first"; exit 1; }
-    cd src/kernel && just image-arm64
-
-# R0: boot the pinned system through Kernel's smokes, on the pinned userland.
+# bsd.mp from Kernel's artifact (target/kernel/<tag>), through Kernel's smoke harness in
+# src/kernel (`tools = true`), with the checks Kernel's dist-arm64 ran before packaging it. The
+# init stand-in is the harness's fixture, built there; it never ships. Logs in target/smoke.
+# R0: the released kernel boots, on every arch of [release].
 smoke:
-    @test -d src/kernel || { echo "smoke: run just fetch first"; exit 1; }
-    cd src/kernel && just smoke-boot
+    #!/bin/zsh
+    set -eu
+    tag=$(python3 -I -c 'import tomllib; print(tomllib.load(open("MANIFEST.toml", "rb"))["kernel"]["release"])')
+    archs=($(python3 -I -c 'import tomllib; print(*tomllib.load(open("MANIFEST.toml", "rb"))["release"]["arch"])'))
+    test -d src/kernel || { echo "smoke: no src/kernel; run just fetch kernel first" >&2; exit 1; }
+    for arch in $archs; do
+        kernel=$PWD/target/kernel/$tag/kernel-$tag-$arch/bsd.mp
+        test -f $kernel || { echo "smoke: no $kernel; run just fetch kernel first" >&2; exit 1; }
+        (cd src/kernel && just build-init-$arch && \
+         EMIBSD_RUN_DIR=$OLDPWD/target/smoke/$arch cargo xtask smoke --reject 'uptime went backwards' --smp 2 \
+            --arch $arch --kernel $kernel --ramdisk none --expect-ramdisk \
+            --expect "bsd: booted on $arch" --expect "EmiBSD 8.0 (GENERIC) #" --expect "selftest: buffer cache ok" \
+            --expect "init: hello from user mode" --expect "init: EmiBSD 8.0" --expect "init: processes ok" \
+            --expect "init exited with status 0 (signal 0)")
+    done
 
 # Cut a release: refuse until docs/RELEASE.md's checklist is scripted (R1).
 release version:
