@@ -20,6 +20,7 @@ does.
 Stdlib only. Nothing here builds anything: OS assembles what the pinned repositories produce.
 """
 import hashlib
+import shutil
 import subprocess
 import sys
 import tarfile
@@ -126,6 +127,9 @@ def fetch_release(doc, name, sec):
             print(f"fetch: {tarball.name} is {got}, the pin says {want}", file=sys.stderr)
             return 1
         top = tarball.name.removesuffix(".tar.zst")
+        # The artifact replaces what an earlier fetch unpacked: a tag cut again must leave
+        # nothing of the withdrawn one.
+        shutil.rmtree(dest / top, ignore_errors=True)
         zstd = subprocess.Popen(["zstd", "-dc", str(tarball)], stdout=subprocess.PIPE)
         with tarfile.open(fileobj=zstd.stdout, mode="r|") as tar:
             tar.extractall(dest, filter="data")
