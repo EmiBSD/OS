@@ -9,9 +9,9 @@ usage: manifest.py show                 the table of pins
        manifest.py consistent           the OpenBSD pin here equals Kernel's and LandingZone's when their clones sit beside this one
 
 A pin with `release` is taken from its GitHub release, never cloned or built: one artifact per
-architecture of [release] arch, <name>-<tag>-<arch>.tar, whose sum is the pin's sha256.<arch>;
-unpacked, its sets match the SHA256 it carries. Needs `gh` (logged in), as Kernel's toolchain
-recipe does.
+architecture of [release] arch, <name>-<tag>-<arch>.tar.zst, whose sum is the pin's
+sha256.<arch>; unpacked, its sets match the SHA256 it carries. Needs `gh` (logged in) and
+`zstd`, as Kernel's toolchain recipe does.
 
 Stdlib only. Nothing here builds anything: OS assembles what the pinned repositories produce.
 """
@@ -56,7 +56,7 @@ def gh_repo(url):
 
 
 def artifact(name, tag, arch):
-    return f"{name}-{tag}-{arch}.tar"
+    return f"{name}-{tag}-{arch}.tar.zst"
 
 
 def released(doc):
@@ -121,9 +121,13 @@ def fetch_release(doc, name, sec):
         if got != want:
             print(f"fetch: {tarball.name} is {got}, the pin says {want}", file=sys.stderr)
             return 1
-        top = tarball.name.removesuffix(".tar")
-        with tarfile.open(tarball) as tar:
+        top = tarball.name.removesuffix(".tar.zst")
+        zstd = subprocess.Popen(["zstd", "-dc", str(tarball)], stdout=subprocess.PIPE)
+        with tarfile.open(fileobj=zstd.stdout, mode="r|") as tar:
             tar.extractall(dest, filter="data")
+        if zstd.wait() != 0:
+            print(f"fetch: zstd could not read {tarball.name}", file=sys.stderr)
+            return 1
         unpacked = dest / top
         sums = (unpacked / "SHA256").read_text().splitlines()
         for line in sums:   # SHA256 (base80.tgz) = <hex>

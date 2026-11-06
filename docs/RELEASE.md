@@ -13,7 +13,7 @@ boot and pass. The repositories build; OS assembles. Nothing is released from a 
 
 R0 can run today: Kernel alone produces a bootable system on OpenBSD's userland, and Userland
 releases the inherited base system's `base`, `comp`, `game` and `man` sets, one artifact per
-architecture (`userland-<tag>-<arch>.tar`), reproducibly: Userland's `just dist <arch>` at the
+architecture (`userland-<tag>-<arch>.tar.zst`), reproducibly: Userland's `just dist <arch>` at the
 tag gives the same sums. OS fetches them by tag and checks them against the manifest's
 `sha256.<arch>`. R1 waits for those sets to reach Kernel's install media and for DevTools' T3
 artifacts.
