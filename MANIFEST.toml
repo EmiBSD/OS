@@ -12,11 +12,16 @@ commit = "2c1d8144e46a304108524274c828cc7b3439fe41"   # main, 2026-10-31: N5.5a1
 # the ramdisk and install media of OpenBSD's userland (xtask userland, distrib, install).
 
 [userland]
-repo   = "https://github.com/EmiBSD/Userland"
-commit = "73372711a5f4b7b7a1303d4d42c2be9d2ea8baf6"   # main, 2026-11-05: the inherited base system, its sets reproducible
-# What it contributes: the inherited base system built for EmiBSD and its base, comp, game
-# and man sets with their SHA256 (`just userland`); its ramdisk boots on Kernel. Not yet
-# in Kernel's install media, which still carry OpenBSD's userland as Kernel builds it.
+repo    = "https://github.com/EmiBSD/Userland"
+commit  = "7b6d52999ab9b3dc696fbc7d33cbed053fad52fe"   # the tag's commit, 2026-11-05
+release = "2026.11.0"   # taken from this GitHub release, never built here: one artifact per arch
+# What it contributes: the inherited base system built for EmiBSD, its base, comp, game and
+# man sets with their SHA256, in userland-<tag>-<arch>.tar (reproducible: Userland's
+# `just dist <arch>` at the tag gives the same sums); its ramdisk boots on Kernel. Not yet in
+# Kernel's install media, which still carry OpenBSD's userland as Kernel builds it.
+
+[userland.sha256]   # the artifact of each architecture; amd64 joins when it is released
+arm64 = "10cb79c4a4099a0b55686437c5789ee46cace1ffbb38247b5535ebb745744029"
 
 [devtools]
 repo   = "https://github.com/EmiBSD/DevTools"
