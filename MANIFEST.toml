@@ -6,10 +6,16 @@ version = "unreleased"          # YEAR.MONTH when cut (docs/RELEASE.md); "unrele
 arch    = ["arm64"]             # amd64 joins after Kernel's N10
 
 [kernel]
-repo   = "https://github.com/EmiBSD/Kernel"
-commit = "2c1d8144e46a304108524274c828cc7b3439fe41"   # main, 2026-10-31: N5.5a1 done
-# What it contributes: the kernel image, boot(8)/efiboot, abi_openbsd.ko, bsd.rd, and today
-# the ramdisk and install media of OpenBSD's userland (xtask userland, distrib, install).
+repo    = "https://github.com/EmiBSD/Kernel"
+commit  = "ea7fc03286146582264f08f3e5d10b04c0d1c4e2"   # the tag's commit, 2026-11-05
+release = "20261106-ea7fc032"   # taken from this GitHub pre-release, never built here: one artifact per arch
+tools   = true                  # also checked out in src/kernel, for its xtask only (rdsetroot, media, smokes)
+# What it contributes: bsd.mp (release profile, feature qemu), bsd.RAMDISK (the same kernel
+# with an empty 32 MiB ramdisk, which OS fills with Userland's miniroot by rdsetroot to make
+# bsd.rd), abi_openbsd.ko, BOOTAA64.EFI, BUILDINFO, in kernel-<tag>-<arch>.tar.zst.
+
+[kernel.sha256]   # the artifact of each architecture
+arm64 = "3a838cd599c175e62c63bfaf0598523b9cdff125a05b517c694f594f2e756eba"
 
 [userland]
 repo    = "https://github.com/EmiBSD/Userland"
