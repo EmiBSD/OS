@@ -27,7 +27,8 @@ kernel's `osrelease`; the names outside the images say EmiBSD.
 | `8.0/<arch>/{base,comp,game,man}80.tar.zst` | Userland's artifact | as is |
 | `8.0/<arch>/INSTALL.<arch>` | Userland's artifact | as is; with it the installer does not ask `Use sets found here anyway?` |
 | `8.0/<arch>/SHA256` | made here | over `bsd.mp`, `bsd.rd`, the four sets and `INSTALL.<arch>`; the installer checks every file it takes against it |
-| `etc/boot.conf` | made here | `set image /8.0/<arch>/bsd.rd`: the loader reads it from the medium's file system and boots the installer; without it, it looks for `/bsd` and stops at its prompt |
+| `etc/boot.conf` (ISO) | made here | `set image /8.0/<arch>/bsd.rd`: the loader reads it from the cd9660 file system and boots the installer; without it, it looks for `/bsd` and stops at its prompt |
+| `bsd`, `bsd.rd` (stick) | made here | hard links to `8.0/<arch>/bsd.rd` at the root of `a`, as OpenBSD's arm64 `install80.img` has them: the loader's default `/bsd` is the installer |
 | the loader | Kernel's `BOOTAA64.EFI` | `EFI/BOOT/BOOTAA64.EFI` on the FAT image (ISO) or partition (stick); base installs the same file in `/usr/mdec`, so medium and installed system boot alike |
 
 Kernel's `abi_openbsd.ko` and `BUILDINFO` are not on the media. The images' own `SHA256` goes
@@ -35,25 +36,32 @@ beside them in the GitHub release.
 
 ## How they are made
 
-All of it is OS's: `tools/media.py` (stdlib, as `manifest.py`) and the recipes. The one tool
-OS does not write is the base system's `makefs`, for the FAT, FFS and cd9660 file systems; it
+All of it is OS's: `tools/media.py` and `tools/smokemedia.py` (stdlib, as `manifest.py`) and
+the recipes `just host-tools`, `just media`, `just smoke-media`. The one tool
+OS does not write is the base system's `makefs`, for the FFS and cd9660 file systems; it
 comes built for the host from the pinned Userland checkout by Userland's own recipe (below).
+The two FAT file systems are written by `media.py` itself (reproducibility, below).
 
 - **`bsd.rd`**: rdsetroot in `media.py`. It reads the ELF64 headers, finds `rd_root_size` and
   `rd_root_image` in `.symtab`, maps them to file offsets through their `PT_LOAD` segment and
   writes the miniroot there, refusing one larger than `rd_root_size`, as the base system's
-  rdsetroot(8) does.
+  rdsetroot(8) does. Checked on 2026-11-06: the same `bsd.rd`, byte for byte, as Kernel's
+  `cargo xtask rdsetroot` makes from the same two files.
 - **The ISO**, as Userland's proof made it (2026-11-06: installer in 25 s, install of all four
   sets from cd0 in 110 s, the installed disk to `login:` in 43 s):
-  - `makefs -t msdos -s 2880k` makes the El Torito image, FAT12 with only
-    `EFI/BOOT/BOOTAA64.EFI`, kept in the tree as `8.0/<arch>/cdbr`;
+  - `media.py` writes the El Torito image, kept in the tree as `8.0/<arch>/cdbr`: FAT12 of
+    2880 KiB with only `EFI/BOOT/BOOTAA64.EFI`, laid out as the `makefs -t msdos -s 2880k` of
+    Userland's proof made it (8 sectors a cluster, 512 root entries, media `0xF0`, 3 sectors a
+    FAT);
   - `makefs -t cd9660 -o rockridge,label=EMIBSD_80,bootimage='efi;8.0/<arch>/cdbr',no-emul-boot`
     makes the ISO from the tree.
 - **The stick**, laid out as Kernel's `docs/ARCHITECTURE.md` ("The release images") records
   OpenBSD's arm64 `install80.img` sector for sector:
   - `media.py` writes the MBR: a FAT partition of type `0x0C` at sector 32768, 16384 sectors,
     active, then the OpenBSD partition (`0xA6`) to sector 1433600, with fdisk's CHS values;
-  - the boot partition: `makefs -t msdos`, FAT16 labelled `BOOT`, with `EFI/BOOT/BOOTAA64.EFI`
+  - the boot partition: `media.py` writes it as `newfs_msdos -L boot -c1 -F16` makes it on
+    `install80.img` (FAT16, 1 sector a cluster, 64 sectors a FAT, 32768 hidden sectors, media
+    `0xF8`, labelled `BOOT`), with `efi/boot/bootaa64.efi` and `efi/boot/startup.nsh`
     (OpenBSD's Raspberry Pi files are not ours);
   - `a`: `makefs -t ffs -o version=1` (16 KB blocks, 2 KB fragments, `-m 0`, `-o space`), the
     tree above;
@@ -84,22 +92,37 @@ same images. What makes them so:
 - rdsetroot and `SHA256` write only what they are given;
 - Userland's host makefs clamps every inode's times to `SOURCE_DATE_EPOCH` and seeds the FFS
   label's UID from it (`-T <epoch>`);
-- the FAT images take a fixed `-o volume_id=`, since their volume ID otherwise comes from the
-  clock;
-- the cd9660 timestamps: to be checked when `just media` first runs twice.
+- cd9660 takes every timestamp from `-T`;
+- the two FAT file systems are `media.py`'s (`fat_image`), not makefs's: the base system's
+  msdosfs places each new file's first cluster from `microtime()` (`msdosfs_fat.c`,
+  `clusteralloc`) and `mkfs_msdos` dates the label from `gettimeofday()`, so `makefs -t msdos`
+  never makes the same image twice. The writer lays the clusters out in order from 2, in name
+  order, with 8.3 names (lower case through the entry's case bits, no long names), every time
+  `SOURCE_DATE_EPOCH` in UTC and the volume ID its low 32 bits. `fsck_msdos -n` finds nothing
+  in either, and macOS's msdosfs reads the loader back byte for byte.
 
-Kernel's artifact is taken by sum, never rebuilt, but it is not rebuildable to the same sum:
-its `BUILDINFO` records the wall-clock time of the build. That is a known difference for the
-release notes until Kernel drops it.
+Checked on 2026-11-06: two runs of `just media` give the same `SHA256` for both images.
+
+Kernel's artifact is taken by sum, never rebuilt. Up to `20261106-ea7fc032` its `BUILDINFO`
+records the wall-clock time of the build, so it does not rebuild to the same sum; Kernel's
+`20261106-ac41e133` dates it by the tag's UTC day and its files by `SOURCE_DATE_EPOCH`, and two
+packs give the same sum.
 
 ## Seen in Userland's proofs (2026-11-06), owned elsewhere
 
 For the release notes and the repositories that own them:
 
-- Kernel:
-  - after `halt`, an `Unknown kernel exception 0x00` into ddb;
-  - `newfs_msdos` was handed `/dev/r0000000000000000.i`, a zero DUID, during disk setup,
-    without harm to the install.
+- Kernel, answered by Kernel's session on 2026-11-06:
+  - after `halt`, an `Unknown kernel exception 0x00` into ddb: `20261106-ea7fc032` was built
+    with the `qemu` feature, so halt ended in QEMU's semihosting exit, which traps without
+    `-semihosting-config`. Fixed in `20261106-ac41e133`, built without it: halt waits for a
+    key, as OpenBSD's does;
+  - `newfs_msdos: /dev/r0000000000000000.i: No such file or directory` during disk setup, ISO
+    installs only: not a kernel fault, real OpenBSD 8.0 prints the same line. `installboot -p`
+    runs right after `fdisk -iy`, before the disk has a label, so its DUID is zero, and so is
+    cd0's; `disk_map` refuses a DUID two disks share. The final `installboot -r /mnt sd0`
+    runs after `disklabel -w` and remakes the boot partition. Expected, and the installer is
+    left as OpenBSD's.
 - DevTools:
   - `reorder_libs` and the `ssh-agent` relink fail at boot without `cc`, `ld` and `ar` in comp;
   - `reorder_kernel` fails without a `kernel.tgz`.
