@@ -31,7 +31,7 @@ kernel's `osrelease`; the names outside the images say EmiBSD.
 | `bsd`, `bsd.rd` (stick) | made here | hard links to `8.0/<arch>/bsd.rd` at the root of `a`, as OpenBSD's arm64 `install80.img` has them: the loader's default `/bsd` is the installer |
 | the loader | Kernel's `BOOTAA64.EFI` | `EFI/BOOT/BOOTAA64.EFI` on the FAT image (ISO) or partition (stick); base installs the same file in `/usr/mdec`, so medium and installed system boot alike |
 
-Kernel's `abi_openbsd.ko` and `BUILDINFO` are not on the media. The images' own `SHA256` goes
+Kernel's `BUILDINFO` is not on the media. The images' own `SHA256` goes
 beside them in the GitHub release.
 
 ## How they are made

@@ -13,7 +13,7 @@ boot and pass. The repositories build; OS assembles. Nothing is released from a 
 
 R0 runs from released artifacts only. Kernel releases its kernel per architecture
 (`kernel-<tag>-<arch>.tar.zst`: `bsd.mp`, the one kernel; `bsd.RAMDISK`, the same kernel with an
-empty ramdisk; `abi_openbsd.ko`, `BOOTAA64.EFI`, `BUILDINFO`), and its pin's `tools = true` keeps
+empty ramdisk; `BOOTAA64.EFI`, `BUILDINFO`), and its pin's `tools = true` keeps
 a checkout of the same commit for Kernel's smoke harness. Userland releases the inherited base
 system's `base`, `comp`, `game` and `man` sets, one artifact per architecture
 (`userland-<tag>-<arch>.tar.zst`), reproducibly: Userland's `just dist <arch>` at the tag gives

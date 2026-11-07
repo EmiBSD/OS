@@ -26,7 +26,7 @@ OpenBSD and tag the release as `YEAR.MONTH`.
 
 | Pinned | Contributes |
 |---|---|
-| [Kernel](https://github.com/EmiBSD/Kernel) | `bsd.mp`, the kernel; `bsd.RAMDISK`, the same kernel with an empty ramdisk; the EFI loader `BOOTAA64.EFI`; `abi_openbsd.ko` |
+| [Kernel](https://github.com/EmiBSD/Kernel) | `bsd.mp`, the kernel; `bsd.RAMDISK`, the same kernel with an empty ramdisk; the EFI loader `BOOTAA64.EFI` |
 | [Userland](https://github.com/EmiBSD/Userland) | the base system above the kernel: its `base`, `comp`, `game` and `man` sets, the installer's ramdisk `miniroot80.fs`, `INSTALL.arm64`; and the host `makefs` its recipes build |
 | [DevTools](https://github.com/EmiBSD/DevTools) | the `comp` set: clang, lld, libc++, rustc, cargo, `std` |
 
