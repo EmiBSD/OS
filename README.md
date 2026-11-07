@@ -11,7 +11,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-ISC-007ec6" alt="License: ISC"></a>
   <a href="docs/RELEASE.md"><img src="https://img.shields.io/badge/milestone-R0-007ec6" alt="Milestone: R0"></a>
-  <a href="https://github.com/EmiBSD/OS/releases/tag/2026.11"><img src="https://img.shields.io/badge/release-2026.11%20pre--release-e05d44" alt="Release: 2026.11, pre-release"></a>
+  <a href="https://github.com/EmiBSD/OS/releases/tag/2026.11.1"><img src="https://img.shields.io/badge/release-2026.11.1%20pre--release-e05d44" alt="Release: 2026.11.1, pre-release"></a>
   <a href="docs/RELEASE.md"><img src="https://img.shields.io/badge/status-experimental-e05d44" alt="Status: experimental"></a>
   <a href="https://www.emibsd.org"><img src="https://img.shields.io/badge/website-emibsd.org-9f9f9f" alt="Website: www.emibsd.org"></a>
 </p>
@@ -43,7 +43,7 @@ flowchart LR
 
 The last stage of the pipeline: the repositories build their pieces; OS integrates them and
 makes the system's install media (`docs/MEDIA.md`), boots them, compares with a real OpenBSD and
-tags. Pre-alpha: the first release, `2026.11`, is a pre-release (`docs/RELEASE.md`).
+tags. Pre-alpha: the releases so far, `2026.11` and `2026.11.1`, are pre-releases (`docs/RELEASE.md`).
 
 ```
 just show         # the pins and the release version
@@ -59,8 +59,8 @@ just smoke-media  # install each in QEMU, then boot the installed disk to login:
 
 Each release on [GitHub](https://github.com/EmiBSD/OS/releases) carries the install media for
 arm64: `emibsd-<version>-arm64-install.iso` (for QEMU and VMs), `emibsd-<version>-arm64-install.img`
-(a USB stick image) and their `SHA256`. The first, `2026.11`, is a pre-release: it installs
-and boots in QEMU, and is not yet compared with a real OpenBSD. Tested on macOS on Apple
+(a USB stick image) and their `SHA256`. Each so far is a pre-release: it installs and boots
+in QEMU, and is not yet compared with a real OpenBSD. Tested on macOS on Apple
 Silicon with QEMU (`brew install qemu`).
 
 1. Download the ISO and check it:
@@ -68,7 +68,7 @@ Silicon with QEMU (`brew install qemu`).
    `V` is the release's tag, as the releases page lists it:
 
    ```sh
-   V=2026.11
+   V=2026.11.1
    U=https://github.com/EmiBSD/OS/releases/download/$V
    curl -fLO $U/emibsd-$V-arm64-install.iso -fLO $U/SHA256 &&
      shasum -a 256 --ignore-missing -c SHA256
