@@ -19,8 +19,8 @@ arm64 = "a6612550f5015fb8fadf1a059562cebd773d5831071b3652474a3b02de8a61f2"
 
 [userland]
 repo    = "https://github.com/EmiBSD/Userland"
-commit  = "37ba802d17f06d062f83deb1ae48638955c719ab"   # the tag's commit, 2026-11-06
-release = "2026.11.1"   # taken from this GitHub release, never built here: one artifact per arch
+commit  = "838543e29344213180c66a9e424001740f3267ec"   # the tag's commit, 2026-11-07
+release = "2026.11.2"   # taken from this GitHub release, never built here: one artifact per arch
 tools   = true          # also checked out in src/userland, whose recipes build the host makefs
 # What it contributes: the inherited base system built for EmiBSD, its base, comp, game and
 # man sets (.tar.zst) with their SHA256, the installation notes INSTALL.<arch>, and the
@@ -30,7 +30,7 @@ tools   = true          # also checked out in src/userland, whose recipes build 
 # local media, bsd.mp is /bsd.
 
 [userland.sha256]   # the artifact of each architecture; amd64 joins when it is released
-arm64 = "90c964eb2556369e5d99f0f12bd0e4919ba847bd299ca049c0797d9fbaf96fa6"
+arm64 = "77f55ed2590e09b8ecaeecfad729784728cab64ae10f084e87d5a3901aaccad2"
 
 [devtools]
 repo   = "https://github.com/EmiBSD/DevTools"
