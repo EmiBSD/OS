@@ -10,8 +10,8 @@ artifacts and nothing else:
   `install80.img` is for that architecture: MBR, FAT boot partition with the loader, an
   OpenBSD partition whose disklabel's `a` is an FFS1 holding the same tree.
 
-The user's decisions: the sets stay `.tar.zst`; no network install, so no `SHA256.sig` and no
-signing key yet; arm64 only (`[release] arch`); one kernel, `bsd.mp` (2026-11-05). OS is the
+The user's decisions: the sets stay `.tar.zst`; no network install; the media signed with
+EmiBSD's own signify key, by OS's pipeline (2026-11-07, below); arm64 only (`[release] arch`); one kernel, `bsd.mp` (2026-11-05). OS is the
 integrator: it puts the pieces together and makes the system's image and both media; Kernel
 only makes and debugs the kernel, Userland only the user tools (2026-11-06).
 
@@ -27,6 +27,7 @@ kernel's `osrelease`; the names outside the images say EmiBSD.
 | `8.0/<arch>/{base,comp,game,man}80.tar.zst` | Userland's artifact | as is |
 | `8.0/<arch>/INSTALL.<arch>` | Userland's artifact | as is; with it the installer does not ask `Use sets found here anyway?` |
 | `8.0/<arch>/SHA256` | made here | over `bsd.mp`, `bsd.rd`, the four sets and `INSTALL.<arch>`; the installer checks every file it takes against it |
+| `8.0/<arch>/SHA256.sig` | made here, when signed | `SHA256` signed with `emibsd-80-base` (signify `-e`); the installer verifies it with the `.pub` Userland puts in the ramdisk, and does not ask `Continue without verification?` |
 | `etc/boot.conf` (ISO) | made here | `set image /8.0/<arch>/bsd.rd`: the loader reads it from the cd9660 file system and boots the installer; without it, it looks for `/bsd` and stops at its prompt |
 | `bsd`, `bsd.rd` (stick) | made here | hard links to `8.0/<arch>/bsd.rd` at the root of `a`, as OpenBSD's arm64 `install80.img` has them: the loader's default `/bsd` is the installer |
 | the loader | Kernel's `BOOTAA64.EFI` | `EFI/BOOT/BOOTAA64.EFI` on the FAT image (ISO) or partition (stick); base installs the same file in `/usr/mdec`, so medium and installed system boot alike |
@@ -83,6 +84,29 @@ Recipes:
   Then the installed disk boots alone to `login:`, and `uname -a` and `/bsd`'s size are
   checked. The runner is OS's (`tools/`, stdlib).
 
+## Signing
+
+From Userland 2026.11.3 on, the base system and the installer trust only EmiBSD's own signify
+keys; the user chose (2026-11-07) that OS signs in its pipeline. `[release] signify` names the
+key (`emibsd-80-base`); without it the media are unsigned, as every release before 2026.11.3
+must be, since its installer trusts OpenBSD's keys only.
+
+- `media.py` signs `8.0/<arch>/SHA256` into `SHA256.sig` beside it, before the images are
+  made, so both carry it; then `dist/<version>/SHA256` (the images' sums) into its own
+  `SHA256.sig`, which goes up with the release, as OpenBSD's releases have one: `signify -C -p
+  emibsd-80-base.pub -x SHA256.sig emibsd-<version>-<arch>-install.iso` checks a download.
+- Each signature is checked again at once with `keys/emibsd-80-base.pub`, the only key in the
+  repository: `RWR7BZgzESUf6vppLWNF/Q83e1OvjRIDJ4kNBtzh0gPMW889JsfGSjU3`, as Userland ships it.
+- The secret key and its passphrase are the user's, outside every repository:
+  `$EMIBSD_SIGN_KEY` (default `~/emibsd-keys/emibsd-80-base.sec`) and `$EMIBSD_SIGN_PASS`
+  (default `~/emibsd-keys/key.txt`, refused unless mode 0600). The passphrase file is signify's
+  stdin; `media.py` never reads, copies or prints either.
+- `just smoke-media` on signed media answers no `Continue without verification?`: the question
+  is a failure there.
+
+Checked on 2026-11-07 with the user's key: both signatures verify with the `.pub`, the `.sig`
+is on the ISO and the stick, and two signed builds give the same images and signatures.
+
 ## Reproducibility
 
 Every byte on the media comes from an artifact checked by sum, or is made here from them with
@@ -93,6 +117,8 @@ same images. What makes them so:
 - Userland's host makefs clamps every inode's times to `SOURCE_DATE_EPOCH` and seeds the FFS
   label's UID from it (`-T <epoch>`);
 - cd9660 takes every timestamp from `-T`;
+- signify's Ed25519 signatures are deterministic: the same `SHA256` and key give the same
+  `SHA256.sig`;
 - the two FAT file systems are `media.py`'s (`fat_image`), not makefs's: the base system's
   msdosfs places each new file's first cluster from `microtime()` (`msdosfs_fat.c`,
   `clusteralloc`) and `mkfs_msdos` dates the label from `gettimeofday()`, so `makefs -t msdos`
@@ -131,7 +157,7 @@ For the release notes and the repositories that own them:
 
 ## Not now
 
-- Network install and signatures.
+- Network install, and the mirror it would read (`cdn.emibsd.org`).
 - amd64, until Kernel's N10.
 - Real hardware: untried; the media are tested in QEMU's `virt` only (since `20261106-ac41e133`
   the kernel is no longer built with feature `qemu`).

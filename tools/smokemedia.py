@@ -49,7 +49,7 @@ COMMON = [
     ("Use (A)uto layout", ["a"]),
     ("Which disk do you wish to initialize?", ["done"]),
     ("Set name(s)?", ["done"]),
-    ("Continue without verification?", ["yes"]),
+    ("Continue without verification?", ["yes"]),   # unsigned media only (UNVERIFIED)
     ("What timezone are you in?", ["UTC"]),
     ("Exit to (S)hell, (H)alt or (R)eboot?", ["h"]),
 ]
@@ -66,6 +66,7 @@ SOURCES = {
         ("Pathname to the sets?", ["{osrev}/{arch}"]),
     ],
 }
+UNVERIFIED = "Continue without verification?"
 FAILURES = ["panic:", "is not a valid choice", "not a valid timezone", "Checksum test for",
             "Installation of ", "Failed to install bootblocks", "found here anyway",
             "and found no", "No filesystems found on", "does not exist."]
@@ -196,7 +197,7 @@ class Vm:
             self.log.write_bytes(self.buf)
 
 
-def smoke(arch, kind, image):
+def smoke(arch, kind, image, signed):
     run = ROOT / "target/smoke-media" / arch / kind
     shutil.rmtree(run, ignore_errors=True)
     run.mkdir(parents=True)
@@ -204,7 +205,8 @@ def smoke(arch, kind, image):
     with open(disk, "wb") as fh:
         fh.truncate(DISK_BYTES)
     fmt = {"osrev": "8.0", "arch": arch}
-    answers = [(q, [a.format(**fmt) for a in r]) for q, r in COMMON + SOURCES[kind]]
+    answers = [(q, [a.format(**fmt) for a in r]) for q, r in COMMON + SOURCES[kind]
+               if not (signed and q == UNVERIFIED)]
     print(f"smoke-media {arch} {kind}: install from {image.name}", flush=True)
     t0 = time.time()
     err = Vm(run, "install", disk, (kind, image)).drive(
@@ -238,6 +240,11 @@ def main():
     with open(ROOT / "MANIFEST.toml", "rb") as fh:
         doc = tomllib.load(fh)
     version = doc["release"]["version"]
+    # Signed media (`[release] signify`): the installer checks SHA256.sig and must not ask to go
+    # on without verification.
+    signed = bool(doc["release"].get("signify"))
+    if signed:
+        FAILURES.append(UNVERIFIED)
     bad = 0
     with Lock(f"installing the {version} media"):
         for arch in doc["release"]["arch"]:
@@ -245,7 +252,7 @@ def main():
                 image = ROOT / "dist" / version / f"emibsd-{version}-{arch}-install.{kind}"
                 if not image.is_file():
                     fail(f"no {image.relative_to(ROOT)}; run just media first")
-                err = smoke(arch, kind, image)
+                err = smoke(arch, kind, image, signed)
                 if err:
                     print(f"smoke-media {arch} {kind}: FAILED: {err}", flush=True)
                     bad += 1

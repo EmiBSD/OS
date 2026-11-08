@@ -61,8 +61,9 @@ host-tools:
 
 # tools/media.py (docs/MEDIA.md): the tree from the fetched artifacts, checked again; bsd.rd by
 # rdsetroot; SHA256; the two FATs written here, the cd9660 and the FFS by the host makefs; the
-# ISO, the USB stick image and their SHA256. Every time written is SOURCE_DATE_EPOCH, the
-# manifest commit's.
+# ISO, the USB stick image and their SHA256; with `[release] signify`, both SHA256 signed into
+# SHA256.sig by the user's key outside the repository (docs/MEDIA.md, Signing). Every time
+# written is SOURCE_DATE_EPOCH, the manifest commit's.
 # R1: the install media of every arch of [release], into dist/<version>/.
 media:
     python3 -I tools/media.py build

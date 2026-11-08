@@ -29,6 +29,7 @@ TARGET = ROOT / "target"
 DIST = ROOT / "dist"
 MAKEFS = ROOT / "src/userland/target/host/bin/makefs"
 SECTOR = 512
+KEYS = ROOT / "keys"          # the public keys; the secret ones never enter a repository
 
 # The stick, as OpenBSD's distrib/arm64/iso/Makefile lays out install80.img (FSSIZE=1433600;
 # `fdisk -iy -b "16384@32768:c"`; `newfs -t msdos -L boot -c1 -F16`), recorded sector for sector in
@@ -156,6 +157,54 @@ def makefs(kind, options, image, tree, t, size=None):
                        env={**os.environ, "TZ": "UTC"})
     if r.returncode or not image.is_file():
         fail(f"makefs -t {kind} {image.name}: {r.stdout}{r.stderr}")
+
+
+# --- signify --------------------------------------------------------------------------------
+#
+# With `[release] signify = "<key>"` (from Userland 2026.11.3 on, whose installer trusts only
+# EmiBSD's keys) the media's <osrev>/<arch>/SHA256 and dist/<version>/SHA256 are signed with
+# signify(1) into SHA256.sig beside them, as OpenBSD's releases are, and checked again with
+# keys/<key>.pub. The secret key and its passphrase are the user's, outside every repository:
+# $EMIBSD_SIGN_KEY (default ~/emibsd-keys/<key>.sec) and $EMIBSD_SIGN_PASS (default
+# ~/emibsd-keys/key.txt, mode 0600), the passphrase file handed to signify as its stdin, never
+# read here. Ed25519 signs deterministically: the same SHA256 gives the same SHA256.sig.
+
+def signer(doc):
+    key = doc["release"].get("signify")
+    if not key:
+        return None
+    exe = shutil.which("signify")
+    if not exe:
+        fail("no signify on PATH (brew install signify-osx)")
+    home = Path.home() / "emibsd-keys"
+    sec = Path(os.environ.get("EMIBSD_SIGN_KEY") or home / f"{key}.sec")
+    pw = Path(os.environ.get("EMIBSD_SIGN_PASS") or home / "key.txt")
+    pub = KEYS / f"{key}.pub"
+    for path, what in ((sec, "secret key ($EMIBSD_SIGN_KEY)"), (pw, "passphrase file ($EMIBSD_SIGN_PASS)"),
+                       (pub, "public key")):
+        if not path.is_file():
+            fail(f"[release] signify = {key!r}: no {what} at {path}")
+    if pw.stat().st_mode & 0o077:
+        fail(f"{pw}: readable by others; chmod 600 it")
+    return {"exe": exe, "sec": sec, "pw": pw, "pub": pub}
+
+
+def sign(s, directory, t):
+    """directory/SHA256.sig, signed and then checked against every file SHA256 lists."""
+    if s is None:
+        return
+    sig = directory / "SHA256.sig"
+    sig.unlink(missing_ok=True)
+    with open(s["pw"], "rb") as fh:
+        r = subprocess.run([s["exe"], "-S", "-e", "-s", str(s["sec"]), "-m", "SHA256", "-x", "SHA256.sig"],
+                           cwd=directory, stdin=fh, capture_output=True, text=True)
+    if r.returncode or not sig.is_file():
+        fail(f"signify -S in {directory}: {r.stderr.strip()}")
+    r = subprocess.run([s["exe"], "-C", "-q", "-p", str(s["pub"]), "-x", "SHA256.sig"],
+                       cwd=directory, capture_output=True, text=True)
+    if r.returncode:
+        fail(f"signify -C in {directory} with {s['pub'].name}: {r.stdout}{r.stderr}".strip())
+    os.utime(sig, (t, t))
 
 
 # --- FAT -----------------------------------------------------------------------------------
@@ -392,8 +441,9 @@ def link_tree(src, dst):
             os.link(p, q)
 
 
-def stage(arch, doc, work, t):
-    """target/media/<arch>/release/<osrev>/<arch>/: the release files and their SHA256."""
+def stage(arch, doc, work, t, signed):
+    """target/media/<arch>/release/<osrev>/<arch>/: the release files, their SHA256 and, signed,
+    its SHA256.sig."""
     ktag, utag = doc["kernel"]["release"], doc["userland"]["release"]
     k = checked(TARGET / "kernel" / ktag / f"kernel-{ktag}-{arch}")
     u = checked(TARGET / "userland" / utag / f"userland-{utag}-{arch}")
@@ -413,6 +463,7 @@ def stage(arch, doc, work, t):
     names = sorted(p.name for p in rel.iterdir())
     sums = "".join(f"SHA256 ({n}) = {sha256(rel / n)}\n" for n in names)
     put(rel / "SHA256", sums.encode(), 0o644, t)
+    sign(signed, rel, t)
     return k, rev, osrev, rd_size
 
 
@@ -470,6 +521,7 @@ def make_stick(arch, k, osrev, work, out, t):
 def cmd_build(_):
     doc = manifest()
     t = epoch()
+    signed = signer(doc)
     version = doc["release"]["version"]
     dest = DIST / version
     dest.mkdir(parents=True, exist_ok=True)
@@ -478,7 +530,7 @@ def cmd_build(_):
         if arch not in STICK:
             fail(f"no stick layout for {arch}")
         work = fresh(TARGET / "media" / arch)
-        k, rev, osrev, rd_size = stage(arch, doc, work, t)
+        k, rev, osrev, rd_size = stage(arch, doc, work, t, signed)
         iso = dest / f"emibsd-{version}-{arch}-install.iso"
         img = dest / f"emibsd-{version}-{arch}-install.img"
         make_iso(arch, k, rev, osrev, work, iso, t)
@@ -488,7 +540,10 @@ def cmd_build(_):
         made += [iso, img]
     sums = "".join(f"SHA256 ({p.name}) = {sha256(p)}\n" for p in sorted(dest.glob("emibsd-*")))
     (dest / "SHA256").write_text(sums)
+    sign(signed, dest, t)
     print(sums, end="")
+    print(f"media: signed with {signed['pub'].stem}, SHA256.sig in {osrev}/<arch>/ and {dest.relative_to(ROOT)}/"
+          if signed else "media: unsigned ([release] has no signify key)")
     return 0
 
 

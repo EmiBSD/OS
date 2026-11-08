@@ -33,7 +33,8 @@ answered in Spanish.
 
 ```
 MANIFEST.toml   the pins: kernel, userland, devtools, and the OpenBSD pin they share
-tools/          manifest.py: show, check, fetch, consistent
+tools/          manifest.py: show, check, fetch, consistent; media.py, smokemedia.py
+keys/           the public signify keys (emibsd-80-base.pub); the secret ones never enter a repo
 docs/           RELEASE.md: the milestones R0..R2 and the checklist of a release;
                 MEDIA.md: the install media, what goes on them and who makes what
 src/            the pinned checkouts (gitignored); target/ dist/ the builds and the assets
