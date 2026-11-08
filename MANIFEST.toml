@@ -2,7 +2,7 @@
 # tools/manifest.py reads it; a pin moves only in a commit titled "manifest: <repo> to <12-hex>".
 
 [release]
-version = "unreleased"          # YEAR.MONTH when cut (docs/RELEASE.md); "unreleased" between releases
+version = "2026.11.3"           # YEAR.MONTH when cut (docs/RELEASE.md); "unreleased" between releases
 arch    = ["arm64"]             # amd64 joins after Kernel's N10
 signify = "emibsd-80-base"      # the media signed with it (docs/MEDIA.md, Signing); keys/<it>.pub
 
