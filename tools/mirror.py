@@ -130,7 +130,11 @@ def order(files):
 
 def remote(cred, prefix):
     """The object names directly under prefix/."""
-    text = aws(cred, "s3", "ls", f"s3://{BUCKET}/{prefix}/", capture=True)
+    r = subprocess.run(["/bin/zsh", "-c", AWS, "zsh", str(cred), "s3", "ls", f"s3://{BUCKET}/{prefix}/"],
+                       capture_output=True, text=True)
+    if r.returncode and (r.returncode != 1 or r.stdout or r.stderr.strip()):
+        fail(f"aws s3 ls {prefix}/: {(r.stderr or r.stdout).strip()}")
+    text = r.stdout                      # `aws s3 ls` exits 1, silent, for a prefix with nothing
     return sorted(l.split(None, 3)[3] for l in text.splitlines() if len(l.split(None, 3)) == 4)
 
 

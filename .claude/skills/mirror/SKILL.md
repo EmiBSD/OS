@@ -52,5 +52,8 @@ the user's go-ahead for that release (see below).
 - `ftp.emibsd.org/pub/EmiBSD/signify/sigbundle-emibsd-NN-base.tgz`, which sysupgrade fetches
   from 8.2 on when the next release's key is missing; not a domain yet.
 - `syspatch/<osrev>/<arch>/` once there are EmiBSD errata.
-- `emibsd-firmware` (firmware.emibsd.org, plain http too, for fw_update) and `emibsd-man`
-  (man.emibsd.org, mandoc -T html of the man set): not assigned yet; ask the user.
+- `emibsd-firmware` (firmware.emibsd.org, plain http too, for fw_update), once there is real
+  hardware.
+
+Not OS's: `emibsd-man` (man.emibsd.org) is Userland's, which makes the man set and the mandoc
+that renders it (the user, 2026-11-07); leave that bucket alone.
