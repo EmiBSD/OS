@@ -175,8 +175,9 @@ def cmd_publish(_):
             aws(cred, "s3", "rm", "--only-show-errors", f"s3://{BUCKET}/{prefix}/{f}")
             print(f"mirror {arch}: deleted {prefix}/{f}", flush=True)
         keep = archive(doc["release"]["version"], arch)
-        for f in order(files):   # inside R2, with the object's metadata
-            aws(cred, "s3", "cp", "--only-show-errors", f"s3://{BUCKET}/{prefix}/{f}", f"s3://{BUCKET}/{keep}/{f}")
+        for f in order(files):   # inside R2, with the object's metadata; R2 has no object tagging
+            aws(cred, "s3api", "copy-object", "--bucket", BUCKET, "--copy-source", f"{BUCKET}/{prefix}/{f}",
+                "--key", f"{keep}/{f}", "--metadata-directive", "COPY", capture=True)
         print(f"mirror {arch}: {len(files)} files kept in {keep}/", flush=True)
     return cmd_check([])
 
