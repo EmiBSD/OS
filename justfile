@@ -79,6 +79,15 @@ media:
 smoke-media *kinds:
     python3 -I tools/smokemedia.py {{kinds}}
 
+# tools/mirror.py (docs/MEDIA.md, The mirror): a signed release's <osrev>/<arch>/ tree, as `just
+# media` left it, to cdn.emibsd.org (R2 bucket emibsd-cdn), the signature checked first; the
+# rest before SHA256, SHA256 before SHA256.sig, then what is gone deleted; then `mirror-check`.
+# Outward-facing: the main session runs it, with the user's go-ahead. Credentials outside the
+# repository ($EMIBSD_R2_CREDS).
+# R1: the mirror of a signed release: `just mirror plan`, `just mirror`, `just mirror check`.
+mirror action="publish":
+    python3 -I tools/mirror.py {{action}}
+
 # Cut a release: refuse until docs/RELEASE.md's checklist is scripted (R1).
 release version:
     @echo "release {{version}}: not scripted yet; docs/RELEASE.md is the checklist" >&2; exit 1

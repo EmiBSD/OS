@@ -111,6 +111,30 @@ must be, since its installer trusts OpenBSD's keys only.
 Checked on 2026-11-07 with the user's key: both signatures verify with the `.pub`, the `.sig`
 is on the ISO and the stick, and two signed builds give the same images and signatures.
 
+## The mirror
+
+From the first signed release on, the release's `<osrev>/<arch>/` tree also goes to
+`https://cdn.emibsd.org/pub/EmiBSD/<osrev>/<arch>/`, the Cloudflare R2 bucket `emibsd-cdn`,
+where the renamed installer (network install), sysupgrade and syspatch look by default; the
+installer's mirror list, `https://ftplist1.emibsd.org/cgi-bin/ftplist.cgi`, names it. An unsigned
+tree never goes up: before Userland 2026.11.3 the installer trusts OpenBSD's keys only.
+
+- `tools/mirror.py` (`just mirror plan`, `just mirror`, `just mirror check`) uploads the tree
+  minus `cdbr` with the `aws` CLI: first every file but `SHA256` and `SHA256.sig`, then
+  `SHA256`, then `SHA256.sig`, then deletes what is no longer in the tree, so a client never
+  pairs a new signature with old files. Every object is `Cache-Control: max-age=300`, since the
+  names repeat between releases; text/plain for `SHA256`, `SHA256.sig` and `INSTALL.<arch>`.
+  Then the files are copied inside the bucket to `pub/EmiBSD/releases/<version>/<arch>/`, each
+  release's own copy, kept for good (the user's decision, 2026-11-07).
+- Before uploading it checks the tree's `SHA256.sig`; after, from the public side, it downloads
+  every file, checks the signature with `keys/<key>.pub` and the `SHA256` against the local
+  tree, and reads the mirror list.
+- The credentials are the user's, outside every repository: `$EMIBSD_R2_CREDS` (default
+  `~/emibsd-keys/emibsd-r2`, mode 0600), sourced by the shell that runs `aws`, never read here.
+- Uploading publishes, so the main session runs it, with the user's go-ahead; the `mirror`
+  skill (`.claude/skills/mirror/`) is the procedure, including how to make sure the local
+  tree is the release's.
+
 ## Reproducibility
 
 Every byte on the media comes from an artifact checked by sum, or is made here from them with
@@ -161,7 +185,7 @@ For the release notes and the repositories that own them:
 
 ## Not now
 
-- Network install, and the mirror it would read (`cdn.emibsd.org`).
+- Network install from the mirror: it needs the first signed release on it (above).
 - amd64, until Kernel's N10.
 - Real hardware: untried; the media are tested in QEMU's `virt` only (since `20261106-ac41e133`
   the kernel is no longer built with feature `qemu`).
