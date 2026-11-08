@@ -2,7 +2,7 @@
 # tools/manifest.py reads it; a pin moves only in a commit titled "manifest: <repo> to <12-hex>".
 
 [release]
-version = "2026.11.2"           # YEAR.MONTH when cut (docs/RELEASE.md); "unreleased" between releases
+version = "unreleased"          # YEAR.MONTH when cut (docs/RELEASE.md); "unreleased" between releases
 arch    = ["arm64"]             # amd64 joins after Kernel's N10
 signify = "emibsd-80-base"      # the media signed with it (docs/MEDIA.md, Signing); keys/<it>.pub
 
@@ -21,8 +21,8 @@ arm64 = "cd407fcf4133d9289977269188223900a3950e6a53ea57eae0e4c2d68d7372dc"
 
 [userland]
 repo    = "https://github.com/EmiBSD/Userland"
-commit  = "d208e236b39aec9e4f35065051bae718dd14aedd"   # the tag's commit, 2026-11-07
-release = "2026.11.3"   # taken from this GitHub release, never built here: one artifact per arch
+commit  = "79b9760338ba857c9d70cc12b3441eaf6d96e5b0"   # the tag's commit, 2026-11-08
+release = "2026.11.4"   # taken from this GitHub release, never built here: one artifact per arch
 tools   = true          # also checked out in src/userland, whose recipes build the host makefs
 # What it contributes: the inherited base system built for EmiBSD, its base, comp, game and
 # man sets (.tar.zst) with their SHA256, the installation notes INSTALL.<arch>, and the
@@ -32,7 +32,7 @@ tools   = true          # also checked out in src/userland, whose recipes build 
 # local media, bsd.mp is /bsd.
 
 [userland.sha256]   # the artifact of each architecture; amd64 joins when it is released
-arm64 = "d7d895a261e11aec12d8e53fb780d82c320c69378f73cddcb9244ba1a6e09a4a"
+arm64 = "a768c9285a4a6b9001666216576422965ceace55f316c24785ed760cb441d7cb"
 
 [devtools]
 repo   = "https://github.com/EmiBSD/DevTools"
