@@ -8,15 +8,16 @@ signify = "emibsd-80-base"      # the media signed with it (docs/MEDIA.md, Signi
 
 [kernel]
 repo    = "https://github.com/EmiBSD/Kernel"
-commit  = "b2a15ba679d253e626164ed166b7ae49bcbd5438"   # the tag's commit, 2026-11-07
-release = "20261107-b2a15ba6"   # taken from this GitHub pre-release, never built here: one artifact per arch
+commit  = "b99aedaf636e0d8f7587d9c7d8436e9a8f03386a"   # the tag's commit, 2026-11-08
+release = "20261108-b99aedaf"   # taken from this GitHub pre-release, never built here: one artifact per arch
 tools   = true                  # also checked out in src/kernel, for its xtask only (rdsetroot, media, smokes)
 # What it contributes: bsd.mp (release profile, without feature qemu, the ABI linked in),
 # bsd.RAMDISK (the same kernel with an empty 32 MiB ramdisk, which OS fills with Userland's
 # miniroot by rdsetroot to make bsd.rd), BOOTAA64.EFI, BUILDINFO, in kernel-<tag>-<arch>.tar.zst.
+# Also MANUAL.toml and include/ (the ABI headers), which are Userland's, not OS's.
 
 [kernel.sha256]   # the artifact of each architecture
-arm64 = "5479dd94db5d77fb45eed86b252a3868c2d4f52b68d3909ea2ee0f7995047b8a"
+arm64 = "cd407fcf4133d9289977269188223900a3950e6a53ea57eae0e4c2d68d7372dc"
 
 [userland]
 repo    = "https://github.com/EmiBSD/Userland"
