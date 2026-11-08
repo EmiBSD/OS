@@ -11,7 +11,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-ISC-007ec6" alt="License: ISC"></a>
   <a href="docs/RELEASE.md"><img src="https://img.shields.io/badge/milestone-R0-007ec6" alt="Milestone: R0"></a>
-  <a href="https://github.com/EmiBSD/OS/releases/tag/2026.11.1"><img src="https://img.shields.io/badge/release-2026.11.1%20pre--release-e05d44" alt="Release: 2026.11.1, pre-release"></a>
+  <a href="https://github.com/EmiBSD/OS/releases/tag/2026.11.2"><img src="https://img.shields.io/badge/release-2026.11.2%20pre--release-e05d44" alt="Release: 2026.11.2, pre-release"></a>
   <a href="docs/RELEASE.md"><img src="https://img.shields.io/badge/status-experimental-e05d44" alt="Status: experimental"></a>
   <a href="https://www.emibsd.org"><img src="https://img.shields.io/badge/website-emibsd.org-9f9f9f" alt="Website: www.emibsd.org"></a>
 </p>
@@ -43,7 +43,7 @@ flowchart LR
 
 The last stage of the pipeline: the repositories build their pieces; OS integrates them and
 makes the system's install media (`docs/MEDIA.md`), boots them, compares with a real OpenBSD and
-tags. Pre-alpha: the releases so far, `2026.11` and `2026.11.1`, are pre-releases (`docs/RELEASE.md`).
+tags. Pre-alpha: the releases so far, `2026.11` to `2026.11.2`, are pre-releases (`docs/RELEASE.md`).
 
 ```
 just show         # the pins and the release version
@@ -59,8 +59,9 @@ just smoke-media  # install each in QEMU, then boot the installed disk to login:
 
 Each release on [GitHub](https://github.com/EmiBSD/OS/releases) carries the install media for
 arm64: `emibsd-<version>-arm64-install.iso` (for QEMU and VMs), `emibsd-<version>-arm64-install.img`
-(a USB stick image) and their `SHA256`. Each so far is a pre-release: it installs and boots
-in QEMU, and is not yet compared with a real OpenBSD. Tested on macOS on Apple
+(a USB stick image), their `SHA256` and, from `2026.11.2` on, its signature `SHA256.sig`. Each
+so far is a pre-release: it installs and boots in QEMU, and is not yet compared with a real
+OpenBSD. Tested on macOS on Apple
 Silicon with QEMU (`brew install qemu`).
 
 1. Download the ISO and check it:
@@ -68,7 +69,7 @@ Silicon with QEMU (`brew install qemu`).
    `V` is the release's tag, as the releases page lists it:
 
    ```sh
-   V=2026.11.1
+   V=2026.11.2
    U=https://github.com/EmiBSD/OS/releases/download/$V
    curl -fLO $U/emibsd-$V-arm64-install.iso -fLO $U/SHA256 &&
      shasum -a 256 --ignore-missing -c SHA256
@@ -76,6 +77,14 @@ Silicon with QEMU (`brew install qemu`).
 
    With wget: `wget $U/emibsd-$V-arm64-install.iso $U/SHA256`. On Linux, `sha256sum
    --ignore-missing -c SHA256` checks it the same way.
+
+   With signify (`brew install signify-osx`), check the signature too, with EmiBSD's key
+   [`keys/emibsd-80-base.pub`](keys/emibsd-80-base.pub):
+
+   ```sh
+   curl -fLO $U/SHA256.sig -fLO https://raw.githubusercontent.com/EmiBSD/OS/main/keys/emibsd-80-base.pub &&
+     signify -C -p emibsd-80-base.pub -x SHA256.sig emibsd-$V-arm64-install.iso
+   ```
 
 2. Prepare a disk and the firmware's variables:
 
@@ -118,10 +127,11 @@ Silicon with QEMU (`brew install qemu`).
    | `Which disk is the root disk?` | `sd0` | `sd0` |
    | `Location of sets?` | `cd0` | `disk`, then `sd1`, partition `a`, path `8.0/arm64` |
    | `Set name(s)?` | `done` | `done` |
-   | `Continue without verification?` | `yes` | `yes` |
    | `Exit to (S)hell, (H)alt or (R)eboot?` | `h` | `h` |
 
-   When it says `The operating system has halted.`, leave QEMU with `Ctrl-A X`.
+   The installer checks the sets against the medium's signature (`Signature Verified`);
+   releases before `2026.11.2` were unsigned and ask `Continue without verification?`: answer
+   `yes`. When it says `The operating system has halted.`, leave QEMU with `Ctrl-A X`.
 
 5. Boot the installed system: run `$=VM` alone, without the ISO or the stick, and log in as
    `root` with the password you gave the installer.
