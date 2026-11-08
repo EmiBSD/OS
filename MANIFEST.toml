@@ -34,7 +34,7 @@ arm64 = "77f55ed2590e09b8ecaeecfad729784728cab64ae10f084e87d5a3901aaccad2"
 
 [devtools]
 repo   = "https://github.com/EmiBSD/DevTools"
-commit = "63830d2c63c442e7faefb1058f46c63f3ca423be"   # main, 2026-10-31: llvm-23.1.4+emibsd.1, rust-1.99.1+emibsd.1
+commit = "832bb279392f918e1c631edf656e5a6da26ddcbb"   # tag llvm-23.1.4+emibsd.2, 2026-11-07; rust-1.99.1+emibsd.1 unchanged
 # What it contributes: the comp set (clang, lld, libc++; rustc, cargo, std) from T3 on.
 
 [openbsd]
