@@ -11,7 +11,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-ISC-007ec6" alt="License: ISC"></a>
   <a href="docs/RELEASE.md"><img src="https://img.shields.io/badge/milestone-R0-007ec6" alt="Milestone: R0"></a>
-  <a href="https://github.com/EmiBSD/OS/releases/tag/2026.11.2"><img src="https://img.shields.io/badge/release-2026.11.2%20pre--release-e05d44" alt="Release: 2026.11.2, pre-release"></a>
+  <a href="https://github.com/EmiBSD/OS/releases/tag/2026.11.3"><img src="https://img.shields.io/badge/release-2026.11.3%20pre--release-e05d44" alt="Release: 2026.11.3, pre-release"></a>
   <a href="docs/RELEASE.md"><img src="https://img.shields.io/badge/status-experimental-e05d44" alt="Status: experimental"></a>
   <a href="https://www.emibsd.org"><img src="https://img.shields.io/badge/website-emibsd.org-9f9f9f" alt="Website: www.emibsd.org"></a>
 </p>
@@ -43,7 +43,7 @@ flowchart LR
 
 The last stage of the pipeline: the repositories build their pieces; OS integrates them and
 makes the system's install media (`docs/MEDIA.md`), boots them, compares with a real OpenBSD and
-tags. Pre-alpha: the releases so far, `2026.11` to `2026.11.2`, are pre-releases (`docs/RELEASE.md`).
+tags. Pre-alpha: the releases so far, `2026.11` to `2026.11.3`, are pre-releases (`docs/RELEASE.md`).
 
 ```
 just show         # the pins and the release version
@@ -69,7 +69,7 @@ Silicon with QEMU (`brew install qemu`).
    `V` is the release's tag, as the releases page lists it:
 
    ```sh
-   V=2026.11.2
+   V=2026.11.3
    U=https://github.com/EmiBSD/OS/releases/download/$V
    curl -fLO $U/emibsd-$V-arm64-install.iso -fLO $U/SHA256 &&
      shasum -a 256 --ignore-missing -c SHA256
