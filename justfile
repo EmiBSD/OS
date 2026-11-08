@@ -5,6 +5,9 @@ set shell := ["zsh", "-cu"]
 
 export PATH := "/opt/homebrew/opt/rustup/bin:" + env("PATH")
 export SOURCE_DATE_EPOCH := `git log -1 --format=%ct 2>/dev/null || echo 0`
+# DevTools' LLVM for the host makefs (host-tools), named here rather than left to the Userland
+# checkout's default, which may name a tree DevTools has since replaced.
+host_llvm := env("HOME") + "/devel/emibsd/toolchains/llvm-23.1.4+emibsd.2-aarch64-apple-darwin-arm64/bin"
 
 default:
     @just --list
@@ -56,7 +59,8 @@ smoke:
 # R1: the host tools of the media (makefs), from the pinned Userland.
 host-tools:
     @test -d src/userland || { echo "host-tools: no src/userland; run just fetch userland first" >&2; exit 1; }
-    cd src/userland && python3 -I tools/upstream.py fetch --build && just host-make && just world arm64 tree host
+    cd src/userland && export EMIBSD_LLVM_BIN=${EMIBSD_LLVM_BIN:-{{host_llvm}}} && \
+        python3 -I tools/upstream.py fetch --build && just host-make && just world arm64 tree host
     @src/userland/target/host/bin/makefs 2>&1 | head -1 || true
 
 # tools/media.py (docs/MEDIA.md): the tree from the fetched artifacts, checked again; bsd.rd by
