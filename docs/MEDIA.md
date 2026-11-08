@@ -126,9 +126,26 @@ tree never goes up: before Userland 2026.11.3 the installer trusts OpenBSD's key
   names repeat between releases; text/plain for `SHA256`, `SHA256.sig` and `INSTALL.<arch>`.
   Then the files are copied inside the bucket to `pub/EmiBSD/releases/<version>/<arch>/`, each
   release's own copy, kept for good (the user's decision, 2026-11-07).
+- Last come the listings (the user's wish, 2026-11-08): R2 serves no directory index, and a
+  Cloudflare URL Rewrite serves a path ending in `/` as `<path>index.html`. From the bucket's
+  own listing, every directory gets an `index.html` like a web server's autoindex (relative
+  links, a directory's ending in `/`, since without it the rewrite does not apply) and every set
+  directory an `index.txt` like `ls -lT`, the name last, as the installer's `sed` in
+  `install.sub` reads it. index.txt first, then index.html deepest first, `/` last, then the
+  index files of directories that are gone are deleted; `cgi-bin/` and the index files are
+  never listed. A directory asked for without its `/` stays 404 (the user's choice).
+  `just mirror index` rewrites them alone; `tools/mirror.py index --out DIR` renders them
+  locally, uploading nothing.
 - Before uploading it checks the tree's `SHA256.sig`; after, from the public side, it downloads
   every file, checks the signature with `keys/<key>.pub` and the `SHA256` against the local
-  tree, and reads the mirror list.
+  tree, asks for each set directory's listing and `index.txt` (parsed as the installer does) and
+  for every listing from `/` down to them, and reads the mirror list.
+- The bucket is OS's alone (the user's decision, 2026-11-08), `cgi-bin/ftplist.cgi` included:
+  every publish rewrites it with its one line, `https://cdn.emibsd.org/pub/EmiBSD`, text/plain,
+  max-age=300. Later content (syspatch, signify key bundles) is published by OS too; when
+  another repository makes it, it reaches OS as a release artifact. `emibsd-firmware`
+  (firmware.emibsd.org, plain http kept for fw_update) is OS's as well, with the same listings
+  once firmware is first published; `emibsd-man` is Userland's.
 - The credentials are the user's, outside every repository: `$EMIBSD_R2_CREDS` (default
   `~/emibsd-keys/emibsd-r2`, mode 0600), sourced by the shell that runs `aws`, never read here.
 - Uploading publishes, so the main session runs it, with the user's go-ahead; the `mirror`

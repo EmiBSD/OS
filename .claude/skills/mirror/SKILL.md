@@ -29,20 +29,27 @@ the user's go-ahead for that release (see below).
 3. `just mirror plan`: what will be uploaded and deleted. Show it to the user.
 4. With the user's go-ahead, `just mirror`: uploads in order (everything else, SHA256,
    SHA256.sig), deletes what is gone, copies the files inside the bucket to
-   `pub/EmiBSD/releases/<version>/<arch>/` (kept for good), then runs the public check.
+   `pub/EmiBSD/releases/<version>/<arch>/` (kept for good), rewrites `cgi-bin/ftplist.cgi`
+   (the installer's mirror list, one line: `https://cdn.emibsd.org/pub/EmiBSD`), rewrites the listings
+   (`index.html` in every directory, `index.txt` in every set directory, from the bucket's own
+   listing), then runs the public check.
 5. Report the check's lines as they are: each arch's download, the signature with
-   `keys/<key>.pub`, the SHA256 against the local tree, and the mirror list
+   `keys/<key>.pub`, the SHA256 against the local tree, the listings (each set directory's
+   page and `index.txt`, and every page from `/` down to them), and the mirror list
    (`ftplist1.emibsd.org/cgi-bin/ftplist.cgi`, which must name `https://cdn.emibsd.org/pub/EmiBSD`).
    A failure is reported, never retried blindly: say what failed and ask.
 
-`just mirror check` alone re-runs step 5 at any time.
+`just mirror check` alone re-runs step 5 at any time. `just mirror index` rewrites only the
+listings (also publishing, so with the user's go-ahead); `python3 -I tools/mirror.py index --out
+DIR` renders them into DIR to look at, uploading nothing.
 
 ## Rules
 
 - The credentials file (`$EMIBSD_R2_CREDS`, default `~/emibsd-keys/emibsd-r2`, mode 0600) is
   sourced by the shell that runs `aws`. Never cat, echo, copy or log it; never put its values
   in a command line, a file or a message.
-- `cgi-bin/ftplist.cgi` in the bucket belongs to the mirror's setup; leave it.
+- `emibsd-cdn` is OS's alone (the user, 2026-11-08), `cgi-bin/ftplist.cgi` included: nothing
+  else writes to it. Content another repository makes for it reaches OS as a release artifact.
 - Every object is `Cache-Control: max-age=300`, since names repeat between releases.
 - The CDN cache is not purged: CLOUDFLARE_TOKEN's scopes are unchecked. A stale object clears
   in five minutes; the check asks with `Cache-Control: no-cache` and a query string.

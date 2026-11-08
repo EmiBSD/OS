@@ -27,6 +27,13 @@ answered in Spanish.
 - **arm64 only until Kernel's N10**; `[release] arch` says which.
 - **Nothing downloaded or installed without the user's OK**; `just fetch` and `just check`
   use the network and run from the main session.
+- **emibsd.org's file services**: OS is the only writer of the R2 buckets `emibsd-cdn` (cdn,
+  ftplist1, later ftp.emibsd.org) and `emibsd-firmware` (firmware.emibsd.org, plain http kept);
+  Userland writes only `emibsd-man`. Content from another repository for these buckets reaches
+  OS as a release artifact and OS publishes it. Every publish ends by regenerating the bucket's
+  listings from its contents (`tools/mirror.py`: an index.html per directory, an index.txt per
+  set directory, deepest first, `/` last) and is finished only when the public check passes.
+  Credentials: `~/emibsd-keys/emibsd-r2`, sourced, never printed or copied.
 - Commit on the user's "dale", push on "súbelo", to `main`; never a branch.
 
 ## Directory map
