@@ -189,6 +189,19 @@ def signer(doc):
     return {"exe": exe, "sec": sec, "pw": pw, "pub": pub}
 
 
+def verify(s, directory, what):
+    """An artifact's own SHA256.sig (each project signs its releases), checked with the key's
+    .pub against every file its SHA256 lists; signed media take no unsigned piece."""
+    if s is None:
+        return
+    if not (directory / "SHA256.sig").is_file():
+        fail(f"{what}: no SHA256.sig in {directory}; signed media take only signed artifacts")
+    r = subprocess.run([s["exe"], "-C", "-q", "-p", str(s["pub"]), "-x", "SHA256.sig"],
+                       cwd=directory, capture_output=True, text=True)
+    if r.returncode:
+        fail(f"{what}: SHA256.sig does not verify with {s['pub'].name}: {r.stdout}{r.stderr}".strip())
+
+
 def sign(s, directory, t):
     """directory/SHA256.sig, signed and then checked against every file SHA256 lists."""
     if s is None:
@@ -447,6 +460,7 @@ def stage(arch, doc, work, t, signed):
     ktag, utag = doc["kernel"]["release"], doc["userland"]["release"]
     k = checked(TARGET / "kernel" / ktag / f"kernel-{ktag}-{arch}")
     u = checked(TARGET / "userland" / utag / f"userland-{utag}-{arch}")
+    verify(signed, TARGET / "userland" / utag / f"userland-{utag}-{arch}", f"userland {utag}")
     base = [n for n in u if n.startswith("base") and n.endswith(".tar.zst")]
     if len(base) != 1:
         fail(f"userland {utag} {arch}: no single base set")

@@ -91,6 +91,10 @@ keys; the user chose (2026-11-07) that OS signs in its pipeline. `[release] sign
 key (`emibsd-80-base`); without it the media are unsigned, as every release before 2026.11.3
 must be, since its installer trusts OpenBSD's keys only.
 
+- Each project signs its own releases (the user, 2026-11-07): Userland signs its artifact's
+  `SHA256` into `SHA256.sig`, and OS signs its media. Signed media take only signed artifacts:
+  `media.py` checks Userland's `SHA256.sig` with the `.pub` before it uses a set, and stops if it
+  is missing or does not verify.
 - `media.py` signs `8.0/<arch>/SHA256` into `SHA256.sig` beside it, before the images are
   made, so both carry it; then `dist/<version>/SHA256` (the images' sums) into its own
   `SHA256.sig`, which goes up with the release, as OpenBSD's releases have one: `signify -C -p
