@@ -2,7 +2,7 @@
 # tools/manifest.py reads it; a pin moves only in a commit titled "manifest: <repo> to <12-hex>".
 
 [release]
-version = "2026.11.3"           # YEAR.MONTH when cut (docs/RELEASE.md); "unreleased" between releases
+version = "unreleased"          # YEAR.MONTH when cut (docs/RELEASE.md); "unreleased" between releases
 arch    = ["arm64"]             # amd64 joins after Kernel's N10
 signify = "emibsd-80-base"      # the media signed with it (docs/MEDIA.md, Signing); keys/<it>.pub
 
@@ -36,7 +36,7 @@ arm64 = "a768c9285a4a6b9001666216576422965ceace55f316c24785ed760cb441d7cb"
 
 [devtools]
 repo   = "https://github.com/EmiBSD/DevTools"
-commit = "832bb279392f918e1c631edf656e5a6da26ddcbb"   # tag llvm-23.1.4+emibsd.2, 2026-11-07; rust-1.99.1+emibsd.1 unchanged
+commit = "e144b4fb3bfb87ab4b2ac567d9364929a7565dc6"   # tag llvm-23.1.4+emibsd.3, 2026-11-08; rust-1.99.1+emibsd.1 unchanged
 # What it contributes: nothing directly (DevTools' D-0009, 2026-11-08). Its native toolchain
 # (clang, lld, libc++; rustc, cargo, std: its T3b) goes to Userland, which puts it in comp; its
 # macOS LLVM builds the host makefs. Recorded as the toolchain the release was built with.
