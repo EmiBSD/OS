@@ -4,17 +4,21 @@
 usage: media.py build                   every arch of [release]: the tree, bsd.rd, SHA256, the ISO and the
                                         stick into dist/<version>/, with their SHA256
        media.py rdsetroot KERNEL FS     put the miniroot FS into the RAMDISK kernel KERNEL, in place
+       media.py host-stamp              record which Userland commit the host makefs was built at
+                                        (the end of `just host-tools`)
 
 Everything comes from the pinned artifacts that `manifest.py fetch` unpacked under target/
 (Kernel's bsd.mp, bsd.RAMDISK and BOOTAA64.EFI; Userland's sets, miniroot80.fs and
 INSTALL.<arch>), checked again against their SHA256 here. The one tool OS does not write is
 the base system's makefs, built for the host by Userland's recipes in src/userland (`just
-host-tools`). Every time written is $SOURCE_DATE_EPOCH (the manifest commit's, from the
+host-tools`), which records the Userland commit it built makefs at in target/host-tools.json;
+`build` refuses a makefs built at another commit than the pin, or changed since. Every time written is $SOURCE_DATE_EPOCH (the manifest commit's, from the
 justfile), so two runs give the same images.
 
 Stdlib only.
 """
 import hashlib
+import json
 import os
 import shutil
 import struct
@@ -28,6 +32,7 @@ ROOT = Path(__file__).resolve().parent.parent
 TARGET = ROOT / "target"
 DIST = ROOT / "dist"
 MAKEFS = ROOT / "src/userland/target/host/bin/makefs"
+HOST_STAMP = ROOT / "target/host-tools.json"
 SECTOR = 512
 KEYS = ROOT / "keys"          # the public keys; the secret ones never enter a repository
 
@@ -146,9 +151,41 @@ def rdsetroot(kernel, image):
 
 # --- makefs --------------------------------------------------------------------------------
 
-def makefs(kind, options, image, tree, t, size=None):
+def userland_head():
+    r = subprocess.run(["git", "-C", str(ROOT / "src/userland"), "rev-parse", "HEAD"],
+                       capture_output=True, text=True)
+    if r.returncode:
+        fail(f"src/userland: {r.stderr.strip()}; run just fetch userland")
+    return r.stdout.strip()
+
+
+def cmd_host_stamp(_):
+    if not MAKEFS.is_file():
+        fail(f"no {MAKEFS.relative_to(ROOT)}: just host-tools did not build it")
+    stamp = {"userland": userland_head(), "makefs": sha256(MAKEFS)}
+    HOST_STAMP.parent.mkdir(parents=True, exist_ok=True)
+    HOST_STAMP.write_text(json.dumps(stamp, indent=2) + "\n")
+    print(f"host-tools: makefs {stamp['makefs'][:12]} built at Userland {stamp['userland'][:12]}")
+    return 0
+
+
+def host_checked(doc):
+    """The host makefs was built by `just host-tools` at the pinned Userland commit and is
+    unchanged since: a makefs from another commit writes other images (2026.11.3's ISO)."""
     if not MAKEFS.is_file():
         fail(f"no {MAKEFS.relative_to(ROOT)}; run just host-tools first")
+    if not HOST_STAMP.is_file():
+        fail(f"no {HOST_STAMP.relative_to(ROOT)}: makefs's Userland commit is unknown; run just host-tools")
+    stamp = json.loads(HOST_STAMP.read_text())
+    pin = doc["userland"]["commit"]
+    if stamp.get("userland") != pin:
+        fail(f"makefs was built at Userland {str(stamp.get('userland'))[:12]}, the pin is {pin[:12]}; "
+             "run just host-tools")
+    if stamp.get("makefs") != sha256(MAKEFS):
+        fail(f"{MAKEFS.relative_to(ROOT)} changed since just host-tools recorded it; run just host-tools")
+
+
+def makefs(kind, options, image, tree, t, size=None):
     image.unlink(missing_ok=True)
     cmd = [str(MAKEFS), "-t", kind, "-T", str(t), "-o", options]
     if size is not None:
@@ -534,6 +571,7 @@ def make_stick(arch, k, osrev, work, out, t):
 
 def cmd_build(_):
     doc = manifest()
+    host_checked(doc)
     t = epoch()
     signed = signer(doc)
     version = doc["release"]["version"]
@@ -570,7 +608,7 @@ def cmd_rdsetroot(args):
 
 
 def main():
-    cmds = {"build": cmd_build, "rdsetroot": cmd_rdsetroot}
+    cmds = {"build": cmd_build, "rdsetroot": cmd_rdsetroot, "host-stamp": cmd_host_stamp}
     if len(sys.argv) < 2 or sys.argv[1] not in cmds:
         print(__doc__, file=sys.stderr)
         return 2

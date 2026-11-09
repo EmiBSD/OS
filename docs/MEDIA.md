@@ -72,7 +72,12 @@ The two FAT file systems are written by `media.py` itself (reproducibility, belo
   its commit. Userland's recipes build the base system's host tools there: `just host-make`,
   then `just world arm64 tree host`, giving `target/host/bin/makefs`. That build needs DevTools'
   LLVM (`EMIBSD_LLVM_BIN`), takes a few minutes, and builds nothing for EmiBSD. Nothing from
-  that checkout goes on the media but what makefs writes.
+  that checkout goes on the media but what makefs writes. It must be rebuilt whenever the
+  Userland pin moves: makefs from another commit writes other images (2026.11.3's ISO was
+  made with one built at the previous pin and cannot be rebuilt from its tag). So
+  `just host-tools` ends by recording the Userland commit and makefs's sum in
+  `target/host-tools.json`, and `just media` refuses a makefs built at another commit than the
+  pin, or changed since.
 
 Recipes:
 - `just media`: stage `target/media/<arch>/`, make `bsd.rd` and `SHA256`, write both images

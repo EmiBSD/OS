@@ -62,6 +62,7 @@ host-tools:
     cd src/userland && export EMIBSD_LLVM_BIN=${EMIBSD_LLVM_BIN:-{{host_llvm}}} && \
         python3 -I tools/upstream.py fetch --build && just host-make && just world arm64 tree host
     @src/userland/target/host/bin/makefs 2>&1 | head -1 || true
+    python3 -I tools/media.py host-stamp
 
 # tools/media.py (docs/MEDIA.md): the tree from the fetched artifacts, checked again; bsd.rd by
 # rdsetroot; SHA256; the two FATs written here, the cd9660 and the FFS by the host makefs; the
