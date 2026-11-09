@@ -182,7 +182,7 @@ def cmd_plan(_):
         print(f"mirror {version} {arch}: s3://{BUCKET}/{prefix}/")
         for f in order(files):
             print(f"  upload {f} ({(tree / f).stat().st_size} bytes)")
-        for f in sorted(set(there) - set(files)):
+        for f in sorted(set(there) - set(files) - INDEXES):
             print(f"  delete {f}")
         kept = remote(cred, archive(version, arch))
         print(f"  copy all to s3://{BUCKET}/{archive(version, arch)}/"
@@ -202,7 +202,7 @@ def cmd_publish(_):
             aws(cred, "s3", "cp", "--only-show-errors", str(tree / f), f"s3://{BUCKET}/{prefix}/{f}",
                 "--content-type", kind, "--cache-control", CACHE)
             print(f"mirror {arch}: {prefix}/{f}", flush=True)
-        for f in sorted(set(remote(cred, prefix)) - set(files)):
+        for f in sorted(set(remote(cred, prefix)) - set(files) - INDEXES):   # the listings are index's
             aws(cred, "s3", "rm", "--only-show-errors", f"s3://{BUCKET}/{prefix}/{f}")
             print(f"mirror {arch}: deleted {prefix}/{f}", flush=True)
         keep = archive(doc["release"]["version"], arch)
