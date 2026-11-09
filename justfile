@@ -7,7 +7,7 @@ export PATH := "/opt/homebrew/opt/rustup/bin:" + env("PATH")
 export SOURCE_DATE_EPOCH := `git log -1 --format=%ct 2>/dev/null || echo 0`
 # DevTools' LLVM for the host makefs (host-tools), named here rather than left to the Userland
 # checkout's default, which may name a tree DevTools has since replaced.
-host_llvm := env("HOME") + "/devel/emibsd/toolchains/llvm-23.1.4+emibsd.3-aarch64-apple-darwin-arm64/bin"
+host_llvm := env("HOME") + "/devel/emibsd/toolchains/llvm-23.1.4+emibsd.4-aarch64-apple-darwin-arm64/bin"
 
 default:
     @just --list

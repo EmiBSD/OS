@@ -36,7 +36,7 @@ arm64 = "a768c9285a4a6b9001666216576422965ceace55f316c24785ed760cb441d7cb"
 
 [devtools]
 repo   = "https://github.com/EmiBSD/DevTools"
-commit = "e144b4fb3bfb87ab4b2ac567d9364929a7565dc6"   # tag llvm-23.1.4+emibsd.3, 2026-11-08; rust-1.99.1+emibsd.1 unchanged
+commit = "a677d16bb3bb8752844d230552d5e2627d59c8f8"   # tags llvm-23.1.4+emibsd.4 and rust-1.99.1+emibsd.2, 2026-11-08
 # What it contributes: nothing directly (DevTools' D-0009, 2026-11-08). Its native toolchain
 # (clang, lld, libc++; rustc, cargo, std: its T3b) goes to Userland, which puts it in comp; its
 # macOS LLVM builds the host makefs. Recorded as the toolchain the release was built with.
