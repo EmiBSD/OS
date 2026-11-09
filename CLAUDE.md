@@ -2,7 +2,8 @@
 
 The repository that assembles an EmiBSD system and cuts its releases: `MANIFEST.toml` pins
 one commit of Kernel, Userland and DevTools, the recipes fetch them, build where they build,
-assemble the sets and the media, boot them, and tag `YEAR.MONTH`. Repository `EmiBSD/OS`,
+make the media from Kernel's kernels and Userland's sets as they are, boot them, and tag
+`YEAR.MONTH`. Repository `EmiBSD/OS`,
 created 2026-10-31. It builds nothing of its own. This file is the rules of this repository; what
 OS needs from Kernel, Userland and DevTools it takes from their pinned checkouts or, for a pin
 with `release` (Kernel, Userland), from that GitHub release's artifacts by tag and sum, one per
@@ -53,7 +54,7 @@ src/            the pinned checkouts (gitignored); target/ dist/ the builds and 
 | | Scope | Proof |
 |---|---|---|
 | R0 | manifest, fetch, Kernel's and Userland's artifacts from their releases, the released kernel booted | `just check`, `just fetch`, `just smoke` from a clean clone |
-| R1 | sets and media assembled here; `diff-openbsd`; the first `YEAR.MONTH` | the installer end to end in QEMU from the release media |
+| R1 | media assembled here from Userland's sets as they are; `diff-openbsd`; the first `YEAR.MONTH` | the installer end to end in QEMU from the release media |
 | R2 | amd64 (after N10); updates between releases | both architectures install from one release |
 
 ## Working

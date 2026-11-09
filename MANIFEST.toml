@@ -37,7 +37,9 @@ arm64 = "a768c9285a4a6b9001666216576422965ceace55f316c24785ed760cb441d7cb"
 [devtools]
 repo   = "https://github.com/EmiBSD/DevTools"
 commit = "832bb279392f918e1c631edf656e5a6da26ddcbb"   # tag llvm-23.1.4+emibsd.2, 2026-11-07; rust-1.99.1+emibsd.1 unchanged
-# What it contributes: the comp set (clang, lld, libc++; rustc, cargo, std) from T3 on.
+# What it contributes: nothing directly (DevTools' D-0009, 2026-11-08). Its native toolchain
+# (clang, lld, libc++; rustc, cargo, std: its T3b) goes to Userland, which puts it in comp; its
+# macOS LLVM builds the host makefs. Recorded as the toolchain the release was built with.
 
 [openbsd]
 # The OpenBSD pin every repository above shares (LandingZone's; Kernel/reference/PINNED.md).

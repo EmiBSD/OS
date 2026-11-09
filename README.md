@@ -28,7 +28,7 @@ OpenBSD and tag the release as `YEAR.MONTH`.
 |---|---|
 | [Kernel](https://github.com/EmiBSD/Kernel) | `bsd.mp`, the kernel; `bsd.RAMDISK`, the same kernel with an empty ramdisk; the EFI loader `BOOTAA64.EFI` |
 | [Userland](https://github.com/EmiBSD/Userland) | the base system above the kernel: its `base`, `comp`, `game` and `man` sets, the installer's ramdisk `miniroot80.fs`, `INSTALL.arm64`; and the host `makefs` its recipes build |
-| [DevTools](https://github.com/EmiBSD/DevTools) | the `comp` set: clang, lld, libc++, rustc, cargo, `std` |
+| [DevTools](https://github.com/EmiBSD/DevTools) | nothing directly: its native toolchain (clang, lld, libc++, rustc, cargo, `std`; its T3b) reaches the release inside Userland's `comp` set; its macOS LLVM builds the host `makefs`; the pin records which toolchain built the release |
 
 ## Where it sits
 
@@ -36,7 +36,7 @@ OpenBSD and tag the release as `YEAR.MONTH`.
 flowchart LR
     k["Kernel"] -- "bsd.mp, bsd.RAMDISK, the loader" --> os["OS"]
     ul["Userland"] -- "the sets, the miniroot" --> os
-    dev["DevTools"] -- "the comp set" --> os
+    dev["DevTools"] -- "the native toolchain,<br/>for the comp set" --> ul
     os -- "YEAR.MONTH: the install ISO<br/>and USB image" --> rel["Release"]
     os -- "status.json, the news" --> web["Website"]
 ```

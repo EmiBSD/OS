@@ -8,7 +8,7 @@ boot and pass. The repositories build; OS assembles. Nothing is released from a 
 | | Scope | Proof |
 |---|---|---|
 | R0 | the manifest, `just fetch`, Kernel's and Userland's artifacts from their pinned releases, the released kernel booted through Kernel's smoke harness, nothing else | `just check`, `just fetch`, `just smoke` green from a clean clone |
-| R1 | the install sets (`base`, `comp`, `man`, ...) and the media (`bsd.rd`, `install.img`, the ISO) assembled here from Kernel's, Userland's and DevTools' outputs; `diff-openbsd` against a real OpenBSD; the first `YEAR.MONTH` tag | the installer runs end to end in QEMU from the release media; the Website's `status.json` reads from the tag |
+| R1 | the install sets (`base`, `comp`, `man`, ...) and the media (`bsd.rd`, `install.img`, the ISO) assembled here from Kernel's and Userland's outputs (DevTools' reaches them inside Userland's `comp`); `diff-openbsd` against a real OpenBSD; the first `YEAR.MONTH` tag | the installer runs end to end in QEMU from the release media; the Website's `status.json` reads from the tag |
 | R2 | amd64 joins (after Kernel's N10); `syspatch`-style updates between releases | both architectures install from the same release |
 
 R0 runs from released artifacts only. Kernel releases its kernel per architecture
@@ -20,8 +20,9 @@ system's `base`, `comp`, `game` and `man` sets, one artifact per architecture
 the same sums. OS fetches each by tag and checks it against the manifest's `sha256.<arch>`.
 Userland's artifact also carries the installer's ramdisk `miniroot80.fs` and `INSTALL.<arch>`,
 and its installer reads the `.tar.zst` sets from local media and installs `bsd.mp` as `/bsd`. R1
-waits for the media OS makes from them (`docs/MEDIA.md`: `just media`, `just smoke-media`) and
-for DevTools' T3 artifacts.
+waits for the media OS makes from them (`docs/MEDIA.md`: `just media`, `just smoke-media`). A
+`comp` with a compiler waits for DevTools' T3b, the native toolchain, which Userland puts in
+`comp` (DevTools' D-0009, 2026-11-08); DevTools gives OS nothing directly.
 
 ## The checklist of a release (R1, to be scripted as `just release`)
 

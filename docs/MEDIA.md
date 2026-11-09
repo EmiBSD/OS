@@ -194,9 +194,11 @@ For the release notes and the repositories that own them:
     cd0's; `disk_map` refuses a DUID two disks share. The final `installboot -r /mnt sd0`
     runs after `disklabel -w` and remakes the boot partition. Expected, and the installer is
     left as OpenBSD's.
-- DevTools:
-  - `reorder_libs` and the `ssh-agent` relink fail at boot without `cc`, `ld` and `ar` in comp;
-  - `reorder_kernel` fails without a `kernel.tgz`.
+- Userland's `comp`, fed by DevTools' T3b, the native toolchain (DevTools' D-0009,
+  2026-11-08): `reorder_libs` and the `ssh-agent` relink fail at boot without `cc`, `ld` and
+  `ar` in comp.
+- Kernel and Userland: `reorder_kernel` fails without a `kernel.tgz`, the kernel's objects to
+  relink; a native `cc` and `ld` alone would not fix it.
 - Userland: `/etc/motd` still names the base system's old name; `/usr/libexec/vi.recover` is
   missing.
 
