@@ -72,7 +72,9 @@ def released(doc):
 
 def cmd_show(_):
     doc = manifest()
-    print(f"release {doc['release']['version']}  arch {','.join(doc['release']['arch'])}")
+    name = doc['release'].get('codename')
+    print(f"release {doc['release']['version']}" + (f" {name}" if name else "")
+          + f"  arch {','.join(doc['release']['arch'])}")
     for name, repo, commit in pins(doc):
         tag = doc[name].get("release")
         print(f"{name:10} {commit[:12]}  {repo}" + (f"  release {tag}" if tag else ""))

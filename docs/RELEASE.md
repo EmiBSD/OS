@@ -35,13 +35,44 @@ waits for the media OS makes from them (`docs/MEDIA.md`: `just media`, `just smo
    difference is a known one, listed in the release notes.
 6. The release notes: the pins, the OpenBSD pin, the `unsafe` figures of Kernel at the pin,
    the known differences, the sets' `SHA256`.
-7. The tag `YEAR.MONTH` on the manifest commit; the sets and media uploaded as the GitHub
+7. The tag `YEAR.MONTH` on the manifest commit, its message and the release's title naming the
+   cycle's code name; the sets and media uploaded as the GitHub
    release's assets; the Website's `_data/status.json` and news updated.
 
 ## Versions
 
 `YEAR.MONTH` for the system; the repositories keep their own milestones and the programs their
 semver. A second release in a month is `YEAR.MONTH.1`.
+
+## Code names
+
+A new EmiBSD comes every six months, following OpenBSD's releases, and each carries a code name
+(the user's decision, 2026-11-15): the regions of Chile from north to south, one per OpenBSD
+version EmiBSD answers to. Every release of a cycle, `YEAR.MONTH` and its `.N` fixes, carries
+the cycle's name; the next OpenBSD version starts the next name. `[release] codename` in
+`MANIFEST.toml` holds it; it goes in the GitHub release's title and notes, the tag's message,
+the README and the Website, never in a file name or a tag (no accents or `ñ` in URLs).
+
+| # | Code name | Region | OpenBSD | From |
+|---|---|---|---|---|
+| 1 | Arica | Arica y Parinacota | 8.0 | `2026.11` |
+| 2 | Tarapacá | Tarapacá | 8.1 | |
+| 3 | Antofagasta | Antofagasta | 8.2 | |
+| 4 | Atacama | Atacama | 8.3 | |
+| 5 | Coquimbo | Coquimbo | 8.4 | |
+| 6 | Valparaíso | Valparaíso | 8.5 | |
+| 7 | Santiago | Metropolitana de Santiago | 8.6 | |
+| 8 | O'Higgins | Libertador General Bernardo O'Higgins | 8.7 | |
+| 9 | Maule | Maule | 8.8 | |
+| 10 | Ñuble | Ñuble | 8.9 | |
+| 11 | Biobío | Biobío | | |
+| 12 | Araucanía | La Araucanía | | |
+| 13 | Los Ríos | Los Ríos | | |
+| 14 | Los Lagos | Los Lagos | | |
+| 15 | Aysén | Aysén del General Carlos Ibáñez del Campo | | |
+| 16 | Magallanes | Magallanes y de la Antártica Chilena | | |
+
+OpenBSD's numbering after 8.9 is OpenBSD's to choose, so the column stops there.
 
 ## What never changes between a pin and a release
 

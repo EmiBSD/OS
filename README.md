@@ -11,7 +11,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-ISC-007ec6" alt="License: ISC"></a>
   <a href="docs/RELEASE.md"><img src="https://img.shields.io/badge/milestone-R0-007ec6" alt="Milestone: R0"></a>
-  <a href="https://github.com/EmiBSD/OS/releases/tag/2026.11.4"><img src="https://img.shields.io/badge/release-2026.11.4%20pre--release-e05d44" alt="Release: 2026.11.4, pre-release"></a>
+  <a href="https://github.com/EmiBSD/OS/releases/tag/2026.11.4"><img src="https://img.shields.io/badge/release-2026.11.4%20Arica%20pre--release-e05d44" alt="Release: 2026.11.4 Arica, pre-release"></a>
   <a href="docs/RELEASE.md"><img src="https://img.shields.io/badge/status-experimental-e05d44" alt="Status: experimental"></a>
   <a href="https://www.emibsd.org"><img src="https://img.shields.io/badge/website-emibsd.org-9f9f9f" alt="Website: www.emibsd.org"></a>
 </p>
@@ -44,6 +44,8 @@ flowchart LR
 The last stage of the pipeline: the repositories build their pieces; OS integrates them and
 makes the system's install media (`docs/MEDIA.md`), boots them, compares with a real OpenBSD and
 tags. Pre-alpha: the releases so far, `2026.11` to `2026.11.4`, are pre-releases (`docs/RELEASE.md`).
+Each six-month cycle, one per OpenBSD release, carries a Chilean region's name, north to south:
+the first, on OpenBSD 8.0, is **Arica**.
 
 ```
 just show         # the pins and the release version
