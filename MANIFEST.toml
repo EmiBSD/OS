@@ -45,5 +45,5 @@ commit = "ed08e1982c94a6f08a0f646c215be4c44273cae7"   # tags llvm-23.1.4+emibsd.
 [openbsd]
 # The OpenBSD pin every repository above shares (LandingZone's; Kernel/reference/PINNED.md).
 # Recorded here so a release states which OpenBSD it answers to; not fetched by this repo.
-repo   = "https://github.com/EmiBSD/OpenBSD-src"
+repo   = "https://github.com/EmiBSD/ext-openbsd-src"
 commit = "3ce1f3f79392ae4d60ce67bea5835d517caaa2ca"
